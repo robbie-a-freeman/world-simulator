@@ -79,8 +79,12 @@ public class World implements Runnable {
 	private void generateCountries()
 	{
 		r = new SecureRandom();
-		for(int x = 0; x < numberOfCountries; x++) {
-			int l = r.nextInt(X*Y);
+		int l = 502;
+		locations[l].setOccupied(true);
+		locations[l].setOwnerID(0);
+		countries[0] = new Country(X*Y, generateGDP(), generateSoldiers(), generatePopulationGrowth(), generatePopulation(), locations[l], generateLeader(), 0, new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
+		for(int x = 1; x < numberOfCountries; x++) {
+			l = r.nextInt(X*Y);
 			while(locations[l].isOccupied()
 					|| locations[l].getX() == 0
 					|| locations[l].getX() == X

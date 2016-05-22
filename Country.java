@@ -74,7 +74,7 @@ public class Country {
 			int growthY = r.nextInt(3) - 1;
 			System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
 			int tally = 0;
-			while(getLocation(chosenLocation).getY() + growthY > world.getY() -1 //when growth is too north/south
+			while(getLocation(chosenLocation).getY() + growthY > world.getY() - 1 //when growth is too north/south
 					|| getLocation(chosenLocation).getY() + growthY < 0
 					|| (world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX] == null
 					||		world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].isOccupied())){
@@ -83,8 +83,12 @@ public class Country {
 				growthY = r.nextInt(3) - 1;
 				tally++;
 				System.out.println("tally added");
+				System.out.println(growthX + ", " + growthY);
 				if(tally == 8){
 					chosenLocation = r.nextInt(loc.length); //TODO create better algorithm for finding expansion tile
+					while(getLocation(chosenLocation).getX() - 1 < 0){
+						chosenLocation = r.nextInt(loc.length);
+					}
 					System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
 					tally = 0;
 				}
