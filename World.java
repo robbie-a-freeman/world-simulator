@@ -6,38 +6,8 @@ public class World implements Runnable {
 
 	private Country[] countries;
 	private int numberOfCountries, X, Y;
-	public int getX() {
-		return X;
-	}
-
-	public void setX(int x) {
-		X = x;
-	}
-
-	public int getY() {
-		return Y;
-	}
-
-	public void setY(int y) {
-		Y = y;
-	}
 
 	private Location[] locations;
-	public Location[] getLocations() {
-		return locations;
-	}
-
-	public void setLocations(Location[] locations) {
-		this.locations = locations;
-	}
-
-	public Country[] getCountries() {
-		return countries;
-	}
-
-	public void setCountries(Country[] countries) {
-		this.countries = countries;
-	}
 
 	private SecureRandom r;
 	private Map m;
@@ -49,7 +19,7 @@ public class World implements Runnable {
 		countries = new Country[numberOfCountries];
 		this.X = X;
 		this.Y = Y;
-		locations = new Location[X * Y];
+		locations = new Location[X * Y]; //0 through the limit
 		build();
 	}
 
@@ -111,7 +81,11 @@ public class World implements Runnable {
 		r = new SecureRandom();
 		for(int x = 0; x < numberOfCountries; x++) {
 			int l = r.nextInt(X*Y);
-			while(locations[l].isOccupied()){
+			while(locations[l].isOccupied()
+					|| locations[l].getX() == 0
+					|| locations[l].getX() == X
+					|| locations[l].getY() == 0
+					|| locations[l].getY() == Y){
 				l = r.nextInt(X*Y);
 				System.out.println("The random number:" + l);
 			}
@@ -150,6 +124,39 @@ public class World implements Runnable {
 	{
 		r = new SecureRandom();
 		return new Leader(r.nextInt(10), r.nextInt(10), r.nextInt(10));
+	}
+	
+
+	public Location[] getLocations() {
+		return locations;
+	}
+
+	public void setLocations(Location[] locations) {
+		this.locations = locations;
+	}
+
+	public Country[] getCountries() {
+		return countries;
+	}
+
+	public void setCountries(Country[] countries) {
+		this.countries = countries;
+	}
+	
+	public int getX() {
+		return X;
+	}
+
+	public void setX(int x) {
+		X = x;
+	}
+
+	public int getY() {
+		return Y;
+	}
+
+	public void setY(int y) {
+		Y = y;
 	}
 
 	private void wipeCountry()

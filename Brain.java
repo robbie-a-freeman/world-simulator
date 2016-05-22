@@ -21,7 +21,7 @@ public class Brain {
 	private void generateStart()
 	{
 		Map m = new Map();
-		World w = new World(m, 10, 500, 500);
+		World w = new World(m, 60, 500, 500);
 		m.setPreferredSize(new Dimension(500,500));
 		JFrame j = new JFrame();
 		JScrollPane s = new JScrollPane(m);

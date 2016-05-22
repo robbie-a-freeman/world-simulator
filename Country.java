@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 public class Country {
 
 	private int territories, GDP, soldiers, technology, population, treasury, growthThreshold;
-	private Country countries[], neighbors[];
+	private Country countries[];
 	private double populationGrowth;
 	private Leader leader;
 	private Location loc[];
@@ -28,7 +28,6 @@ public class Country {
 		this.loc[0] = loc;
 		this.loc[0].setColor(color);
 		this.leader = leader;
-		neighbors = new Country[10];
 
 		technology = 0;
 		treasury = 0;
@@ -75,24 +74,47 @@ public class Country {
 			int growthY = r.nextInt(3) - 1;
 			System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
 			int tally = 0;
-			while(world.getLocations()[(getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + 1) + 1)].getX() > world.getX() - 2
-					|| world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() - 1) - 1].getX() < 1
-					|| world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + 1) + 1].getY() > world.getY() - 2
-					|| world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() - 1) - 1].getY() < 1
-					|| world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].isOccupied()
-					){
+			while(getLocation(chosenLocation).getY() + growthY > world.getY() -1 //when growth is too north/south
+					|| getLocation(chosenLocation).getY() + growthY < 0
+					|| (world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX] == null
+					||		world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].isOccupied())){
+				System.out.println("started loop");
 				growthX = r.nextInt(3) - 1;
 				growthY = r.nextInt(3) - 1;
 				tally++;
+				System.out.println("tally added");
 				if(tally == 8){
 					chosenLocation = r.nextInt(loc.length); //TODO create better algorithm for finding expansion tile
+					System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
 					tally = 0;
 				}
 			}
-			System.out.println((getLocation(chosenLocation).getX() + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
-			world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
-			world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
-			expandLocation(loc, world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
+
+			if(getLocation(chosenLocation).getX() + growthX == 1 + world.getX()){ //east/west growth
+				int x = -world.getX() + getLocation(chosenLocation).getX();
+				System.out.println((getLocation(chosenLocation).getX() + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
+				System.out.println((x + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
+				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
+				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
+				expandLocation(loc, world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
+			}
+			else if(getLocation(chosenLocation).getX() + growthX == -1){
+				System.out.println("LEFT");
+				int x = world.getX() + getLocation(chosenLocation).getX();
+				System.out.println("LEFT AGAIN");
+				System.out.println((x + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
+				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
+				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
+				expandLocation(loc, world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
+			}
+			else{
+				System.out.println((getLocation(chosenLocation).getX() + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
+				world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
+				world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
+				expandLocation(loc, world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
+			}
+
+
 			System.out.println("expanded");
 			growthThreshold += 10;
 
@@ -103,7 +125,7 @@ public class Country {
 							if(getLocation(i).getY() + y < world.getY() && getLocation(i).getY() + y > 0){
 								Location z = world.getLocations()[getLocation(i).getX() + world.getX() * (getLocation(i).getY() + y) + x];
 								if(z.getOwnerID() != nationID && z.getOwnerID() > -1){
-									System.out.println("ENEMYYYYYYYYYYYYYYYYYYY"); //BUG if pixel is close to edge of map
+									System.out.println("ENEMYYYYYYYYYYYYYYYYYYY");
 									priority.setSharesBorder(true);
 									priority.setEnemy(world.getCountries()[z.getOwnerID()]);
 								}
@@ -128,19 +150,8 @@ public class Country {
 	}
 
 	private void firstTimeSetup() {
-		int i = 0;
-		for(Country c : countries){
-			isNeighbor(c.getLocation(0), i++, c);
-		}
 		growthThreshold = population + 10;
 		established = true;
-	}
-
-	private void isNeighbor(Location l, int i, Country c){
-		double distance = Math.sqrt(Math.pow(l.getY() - loc[0].getY(), 2) + Math.pow(l.getX() - loc[0].getX(), 2));
-		if(distance < 20000){
-			neighbors[i] = c;
-		}
 	}
 
 	public void makeDecisions()
@@ -192,16 +203,6 @@ public class Country {
 
 	public void setNationID(int nationID) {
 		this.nationID = nationID;
-	}
-
-	public Country[] getNeighbors() 
-	{
-		return neighbors;
-	}
-
-	public void setNeighbors(Country neighbors[]) 
-	{
-		this.neighbors = neighbors;
 	}
 
 	public Leader getLeader() {
