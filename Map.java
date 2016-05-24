@@ -26,8 +26,8 @@ public class Map extends JPanel implements Runnable{
 
 	public void paintComponent(Graphics g)
 	{
-		for(int x = 0; x < mapX; x++){
-			for(int y = 0; y < mapY; y++){
+		for(int x = 1; x < mapX + 1; x++){
+			for(int y = 1; y < mapY + 1; y++){ //Not coloring in the null locations
 				this.g = g;
 				g.setColor(Color.GREEN);
 				g.drawLine(x,y,x,y);

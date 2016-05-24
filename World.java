@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 public class World implements Runnable {
 
 	private Country[] countries;
-	private int numberOfCountries, X, Y;
+	private int numberOfCountries, X, Y, marginX, marginY;
 
 	private Location[] locations;
 
@@ -17,9 +17,11 @@ public class World implements Runnable {
 		this.m = m;
 		numberOfCountries = countriesNum;
 		countries = new Country[numberOfCountries];
-		this.X = X;
-		this.Y = Y;
-		locations = new Location[X * Y]; //0 through the limit
+		this.X = X + 2; //to account for the null location borders
+		this.Y = Y + 2;
+		setMarginX(1);
+		setMarginY(1);
+		locations = new Location[(this.X * this.Y)]; //0 through the limit
 		build();
 	}
 
@@ -36,7 +38,12 @@ public class World implements Runnable {
 				int index = x + y * X;
 				System.out.println(X * Y);
 				System.out.println(index);
-				locations[index] = new Location(x, y);
+				if(x == 0 || x == X - 1 || y == Y - 1 || y == 0){
+					locations[index] = null;
+				}
+				else{
+					locations[index] = new Location(x, y);
+				}
 			}
 		}
 	}
@@ -79,23 +86,14 @@ public class World implements Runnable {
 	private void generateCountries()
 	{
 		r = new SecureRandom();
-		int l = 502;
-		locations[l].setOccupied(true);
-		locations[l].setOwnerID(0);
-		countries[0] = new Country(X*Y, generateGDP(), generateSoldiers(), generatePopulationGrowth(), generatePopulation(), locations[l], generateLeader(), 0, new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
-		for(int x = 1; x < numberOfCountries; x++) {
-			l = r.nextInt(X*Y);
-			while(locations[l].isOccupied()
-					|| locations[l].getX() == 0
-					|| locations[l].getX() == X
-					|| locations[l].getY() == 0
-					|| locations[l].getY() == Y){
+		for(int x = 0; x < numberOfCountries; x++) {
+			int l = r.nextInt(X*Y);
+			while(locations[l] == null || locations[l].isOccupied()){
 				l = r.nextInt(X*Y);
-				System.out.println("The random number:" + l);
 			}
 			locations[l].setOccupied(true);
 			locations[l].setOwnerID(x);
-			countries[x] = new Country(X*Y, generateGDP(), generateSoldiers(), generatePopulationGrowth(), generatePopulation(), locations[l], generateLeader(), x, new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
+			countries[x] = new Country(generateGDP(), generateSoldiers(), generatePopulationGrowth(), generatePopulation(), locations[l], generateLeader(), x, new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
 		}
 	}
 
@@ -161,6 +159,22 @@ public class World implements Runnable {
 
 	public void setY(int y) {
 		Y = y;
+	}
+
+	public int getMarginX() {
+		return marginX;
+	}
+
+	public void setMarginX(int marginX) {
+		this.marginX = marginX;
+	}
+
+	public int getMarginY() {
+		return marginY;
+	}
+
+	public void setMarginY(int marginY) {
+		this.marginY = marginY;
 	}
 
 	private void wipeCountry()

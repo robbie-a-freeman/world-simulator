@@ -15,7 +15,7 @@ public class Country {
 	private World world;
 	private Color color;
 
-	public Country(int worldSize, int GDP, int soldiers, double populationGrowth, int population, Location loc, Leader leader, int nationID, Color color)
+	public Country(int GDP, int soldiers, double populationGrowth, int population, Location loc, Leader leader, int nationID, Color color)
 	{
 		this.nationID = nationID;
 		this.color = color;
@@ -68,74 +68,78 @@ public class Country {
 			System.out.println("EXPANDING");
 
 			SecureRandom r = new SecureRandom();
-			System.out.println(loc.length);
-			int chosenLocation = r.nextInt(loc.length); //TODO change
+			int chosenLocation = r.nextInt(loc.length);
 			int growthX = r.nextInt(3) - 1;
 			int growthY = r.nextInt(3) - 1;
-			System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
+			int x = getLocation(chosenLocation).getX() + growthX;
+			int y = getLocation(chosenLocation).getY() + growthY;
 			int tally = 0;
-			if(getLocation(chosenLocation).getX() + growthX == -1 && getLocation(chosenLocation).getY() == 0){
-				growthX++;
+			if(x < world.getMarginX()){
+				x = world.getX() - world.getMarginX() - 1;
 			}
-			while(getLocation(chosenLocation).getY() + growthY > world.getY() - 1 //when growth is too north/south
-					|| getLocation(chosenLocation).getY() + growthY < 0
-					|| (world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX] == null
-					||		world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].isOccupied())){
+			if(x > world.getX() - world.getMarginX() - 1){
+				x = world.getMarginX();
+			}
+			if(y < world.getMarginY()){
+				growthY += world.getMarginY() - y;
+			}
+			if(y > world.getY() - world.getMarginY()){
+				growthY -= y - world.getY();
+			}
+			while(world.getLocations()[x + world.getX() * y] == null
+					|| world.getLocations()[x + world.getX() * y].getOwnerID() == nationID){
 				System.out.println("started loop");
 				growthX = r.nextInt(3) - 1;
-				if(getLocation(chosenLocation).getX() + growthX == -1){
-					growthX++;
-				}
 				growthY = r.nextInt(3) - 1;
+				x = getLocation(chosenLocation).getX() + growthX;
+				y = getLocation(chosenLocation).getY() + growthY;
+				if(x < world.getMarginX()){
+					x = world.getX() - world.getMarginX() - 1;
+				}
+				if(x > world.getX() - world.getMarginX() - 1){
+					x = world.getMarginX();
+				}
+				if(y < world.getMarginY()){
+					growthY += world.getMarginY() - y;
+				}
+				if(y > world.getY() - world.getMarginY()){
+					growthY -= y - world.getY();
+				}
 				tally++;
-				System.out.println("tally added");
-				System.out.println(growthX + ", " + growthY);
 				if(tally == 8){
-					chosenLocation = r.nextInt(loc.length); //TODO create better algorithm for finding expansion tile\
-					if(getLocation(chosenLocation).getX() + growthX == -1){
-						growthX++;
+					chosenLocation = r.nextInt(loc.length);
+					if(x < world.getMarginX()){
+						x = world.getX() - world.getMarginX() - 1;
 					}
-					System.out.println(getLocation(chosenLocation).getX() + ", " + getLocation(chosenLocation).getY());
+					if(x > world.getX() - world.getMarginX() - 1){
+						x = world.getMarginX();
+					}
+					if(y < world.getMarginY()){
+						growthY += world.getMarginY() - y;
+					}
+					if(y > world.getY() - world.getMarginY()){
+						growthY -= y - world.getY();
+					}
 					tally = 0;
 				}
+				System.out.println("finished loop");
 			}
 
-			if(getLocation(chosenLocation).getX() + growthX == 1 + world.getX()){ //east/west growth
-				int x = -world.getX() + getLocation(chosenLocation).getX();
-				System.out.println((getLocation(chosenLocation).getX() + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
-				System.out.println((x + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
-				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
-				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
-				expandLocation(loc, world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
-			}
-			else if(getLocation(chosenLocation).getX() + growthX == -1){
-				System.out.println("LEFT");
-				int x = world.getX() + getLocation(chosenLocation).getX();
-				System.out.println("LEFT AGAIN");
-				System.out.println((x + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
-				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
-				world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
-				expandLocation(loc, world.getLocations()[x + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
-			}
-			else{
-				System.out.println((getLocation(chosenLocation).getX() + growthX) + ", " + (getLocation(chosenLocation).getY() + growthY));
-				world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOccupied(true);
-				world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX].setOwnerID(nationID);
-				expandLocation(loc, world.getLocations()[getLocation(chosenLocation).getX() + world.getX() * (getLocation(chosenLocation).getY() + growthY) + growthX]);
-			}
-
+			System.out.println(x + ", " + y);
+			world.getLocations()[x + world.getX() * y].setOccupied(true);
+			world.getLocations()[x + world.getX() * y].setOwnerID(nationID);
+			expandLocation(loc, world.getLocations()[x + world.getX() * y]);
 
 			System.out.println("expanded");
 			growthThreshold += 10;
 
 			if(soldiers > 0){
 				for(int i = 0; i < loc.length; i++){ //Acknowledge bordered country
-					for(int y = -1; y < 2; y++){
-						for(int x = -1; x < 2; x++){
-							if(getLocation(i).getY() + y < world.getY() && getLocation(i).getY() + y > 0){
-								Location z = world.getLocations()[getLocation(i).getX() + world.getX() * (getLocation(i).getY() + y) + x];
+					for(int yy = -1; yy < 2; yy++){
+						for(int xx = -1; xx < 2; xx++){
+							if(world.getLocations()[getLocation(i).getX() + world.getX() * (getLocation(i).getY() + yy) + xx] != null){
+								Location z = world.getLocations()[getLocation(i).getX() + world.getX() * (getLocation(i).getY() + yy) + xx];
 								if(z.getOwnerID() != nationID && z.getOwnerID() > -1){
-									System.out.println("ENEMYYYYYYYYYYYYYYYYYYY");
 									priority.setSharesBorder(true);
 									priority.setEnemy(world.getCountries()[z.getOwnerID()]);
 								}
