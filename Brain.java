@@ -1,3 +1,5 @@
+package edu.ding.eng;
+
 import java.awt.Dimension;
 import java.security.SecureRandom;
 import java.util.concurrent.Executors;

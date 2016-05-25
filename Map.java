@@ -1,3 +1,5 @@
+package edu.ding.eng;
+
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -6,6 +8,10 @@ import javax.swing.JPanel;
 
 public class Map extends JPanel implements Runnable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3967835280265684766L;
 	private int mapX = 500;
 	private int mapY = 500;
 	private Location locations[];

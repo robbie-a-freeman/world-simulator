@@ -1,3 +1,5 @@
+package edu.ding.eng;
+
 import java.awt.Color;
 import java.security.SecureRandom;
 
@@ -179,7 +181,7 @@ public class World implements Runnable {
 
 	private void wipeCountry()
 	{
-
+		
 	}
 
 	public void process() 

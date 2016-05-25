@@ -1,3 +1,5 @@
+package edu.ding.eng;
+
 import java.awt.Color;
 import java.security.SecureRandom;
 
@@ -88,7 +90,6 @@ public class Country {
 			}
 			while(world.getLocations()[x + world.getX() * y] == null
 					|| world.getLocations()[x + world.getX() * y].getOwnerID() == nationID){
-				System.out.println("started loop");
 				growthX = r.nextInt(3) - 1;
 				growthY = r.nextInt(3) - 1;
 				x = getLocation(chosenLocation).getX() + growthX;
@@ -122,7 +123,6 @@ public class Country {
 					}
 					tally = 0;
 				}
-				System.out.println("finished loop");
 			}
 
 			System.out.println(x + ", " + y);
