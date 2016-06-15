@@ -1,8 +1,13 @@
 package edu.ding.eng;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 
@@ -22,7 +27,11 @@ public class Map extends JPanel implements Runnable{
 
 	public Map()
 	{
+		setLayout(new BorderLayout());
+		JButton test = new JButton("test");
+		add(test, BorderLayout.LINE_END);
 		generateMap();
+		
 	}
 
 	private void generateMap()
@@ -40,8 +49,11 @@ public class Map extends JPanel implements Runnable{
 			}
 		}
 
-		updateCountryPoints(g);
-
+		if(countryLocations != null){ //for when Map is just generating terraforming screens
+			updateCountryPoints(g);
+		} else{
+			updateTectonicPlates(g);
+		}
 	}
 
 	private void updateCountryPoints(Graphics g)
@@ -62,6 +74,18 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
+	private void updateTectonicPlates(Graphics g)
+	{
+		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
+			g.setColor(locations[i].getColor());
+			System.out.println(locations[i].getX() + " " +  locations[i].getY());
+			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+
+			System.out.println("done one " + i);
+		}
+		System.out.println("done");
+	}
+
 	@Override
 	public void run()
 	{
@@ -73,4 +97,16 @@ public class Map extends JPanel implements Runnable{
 		locations = locs;
 		countryLocations = countryLocs;
 	}
+
+	private class Handler implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if(arg0.equals("test")){
+				System.out.println("TEST");
+			}
+
+		}
+	}
+
 }

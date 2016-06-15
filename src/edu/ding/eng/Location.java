@@ -6,7 +6,7 @@ import java.awt.Color;
 public class Location {
 
 	private double desert, forest, jungle, hills, plains, mountains, temperature;
-	private boolean occupied = false;
+	private boolean isLand, occupied = false;
 	private int x, y, ownerID;
 	private Color color;
 
@@ -54,6 +54,12 @@ public class Location {
 	}
 	public void setOccupied(boolean occupied) {
 		this.occupied = occupied;
+	}
+	public boolean isLand() {
+		return isLand;
+	}
+	public void setLand(boolean isLand) {
+		this.isLand = isLand;
 	}
 
 }
