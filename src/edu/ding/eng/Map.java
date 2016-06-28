@@ -4,10 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
@@ -21,15 +25,42 @@ public class Map extends JPanel implements Runnable{
 	private int mapY = 500;
 	private Location locations[];
 	private Location countryLocations[][];
+	private int mapMode = 0; //0 is normal, 1 is tectonic
 	private int[] landTilesX = new int[mapX * mapY];
 	private int[] landTilesY = new int[mapX * mapY];
 	private Graphics g;
 
 	public Map()
 	{
-		setLayout(new BorderLayout());
-		JButton test = new JButton("test");
-		add(test, BorderLayout.LINE_END);
+		setLayout(null);
+		JButton normalMode = new JButton("normal");
+		normalMode.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				mapMode = 0;
+				repaint();
+			}
+			
+		});
+		normalMode.setBounds(550, 50, 100, 50);
+		add(normalMode);
+		
+		JButton tectonicMode = new JButton("tectonic");
+		tectonicMode.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				mapMode = 1;
+				repaint();
+			}
+			
+		});
+		
+		tectonicMode.setBounds(550, 110, 100, 50);
+		
+		add(tectonicMode);
+		
 		generateMap();
 		
 	}
@@ -41,19 +72,34 @@ public class Map extends JPanel implements Runnable{
 
 	public void paintComponent(Graphics g)
 	{
-		for(int x = 1; x < mapX + 1; x++){
-			for(int y = 1; y < mapY + 1; y++){ //Not coloring in the null locations
-				this.g = g;
-				g.setColor(Color.GREEN);
-				g.drawLine(x,y,x,y);
+		switch(mapMode){
+		case 0:
+			for(int x = 1; x < mapX + 1; x++){
+				for(int y = 1; y < mapY + 1; y++){ //Not coloring in the null locations
+					this.g = g;
+					if(locations[(x - 1) + (y - 1) * (x - 1)].isLand()){
+						g.setColor(Color.GREEN);
+						g.drawLine(x,y,x,y);
+					}
+					else{
+						g.setColor(Color.BLUE);
+						g.drawLine(x,y,x,y);
+					}
+				}
 			}
+			break;
+		case 1:
+			updateTectonicPlates(g);
+			break;
+		default:
+			System.out.println("ERROR");
+			break;
 		}
+		
 
 		if(countryLocations != null){ //for when Map is just generating terraforming screens
 			updateCountryPoints(g);
-		} else{
-			updateTectonicPlates(g);
-		}
+		} 
 	}
 
 	private void updateCountryPoints(Graphics g)
@@ -96,17 +142,6 @@ public class Map extends JPanel implements Runnable{
 	{
 		locations = locs;
 		countryLocations = countryLocs;
-	}
-
-	private class Handler implements ActionListener{
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			if(arg0.equals("test")){
-				System.out.println("TEST");
-			}
-
-		}
 	}
 
 }

@@ -10,12 +10,12 @@ public class TectonicPlate {
 	private Color color;
 	private TectonicPlateControlGradient t;
 	
-	public TectonicPlate(double centerX, double centerY){
+	public TectonicPlate(double centerX, double centerY, int worldX, int worldY){
 		this.setCenterX(centerX);
 		this.setCenterY(centerY);
 		SecureRandom r = new SecureRandom();
 		setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256))); //give temporary color to see plates
-		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak));
+		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak, worldX, worldY));
 	}
 	
 	public void calcGradient(){

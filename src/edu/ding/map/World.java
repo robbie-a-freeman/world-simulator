@@ -28,7 +28,7 @@ public class World {
 		
 		SecureRandom r = new SecureRandom();
 		for(int x = 0; x < 100; x++){
-			tectonicPlates.add(new TectonicPlate((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1])));
+			tectonicPlates.add(new TectonicPlate((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1]));
 		}
 		movePlates();
 
@@ -80,7 +80,7 @@ public class World {
 		s.setPreferredSize(new Dimension(worldSize[0], worldSize[1]));
 		j.add(s);
 		j.setVisible(true);
-		j.setSize(600,600);
+		j.setSize(700,600);
 		j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
