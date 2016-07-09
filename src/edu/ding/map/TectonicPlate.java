@@ -9,8 +9,10 @@ public class TectonicPlate {
 	private double centerX, centerY;
 	private Color color;
 	private TectonicPlateControlGradient t;
+	private int ID;
 	
-	public TectonicPlate(double centerX, double centerY, int worldX, int worldY){
+	public TectonicPlate(double centerX, double centerY, int worldX, int worldY, int ID){
+		this.setID(ID);
 		this.setCenterX(centerX);
 		this.setCenterY(centerY);
 		SecureRandom r = new SecureRandom();
@@ -56,6 +58,14 @@ public class TectonicPlate {
 
 	public void setCenterY(double centerY) {
 		this.centerY = centerY;
+	}
+
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int iD) {
+		ID = iD;
 	}
 	
 }

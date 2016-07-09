@@ -25,7 +25,7 @@ public class Map extends JPanel implements Runnable{
 	private int mapY = 500;
 	private Location locations[];
 	private Location countryLocations[][];
-	private int mapMode = 0; //0 is normal, 1 is tectonic
+	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat
 	private int[] landTilesX = new int[mapX * mapY];
 	private int[] landTilesY = new int[mapX * mapY];
 	private Graphics g;
@@ -58,8 +58,21 @@ public class Map extends JPanel implements Runnable{
 		});
 		
 		tectonicMode.setBounds(550, 110, 100, 50);
-		
 		add(tectonicMode);
+		
+		JButton heatMode = new JButton("heat");
+		heatMode.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				mapMode = 2;
+				repaint();
+			}
+			
+		});
+		
+		heatMode.setBounds(550, 170, 100, 50);
+		add(heatMode);
 		
 		generateMap();
 		
@@ -77,7 +90,7 @@ public class Map extends JPanel implements Runnable{
 			for(int x = 1; x < mapX + 1; x++){
 				for(int y = 1; y < mapY + 1; y++){ //Not coloring in the null locations
 					this.g = g;
-					if(locations[(x - 1) + (y - 1) * (x - 1)].isLand()){
+					if(locations[(x - 1) + (y - 1) * mapX].isLand()){
 						g.setColor(Color.GREEN);
 						g.drawLine(x,y,x,y);
 					}
@@ -90,6 +103,9 @@ public class Map extends JPanel implements Runnable{
 			break;
 		case 1:
 			updateTectonicPlates(g);
+			break;
+		case 2:
+			updateHeatGradients(g);
 			break;
 		default:
 			System.out.println("ERROR");
@@ -123,7 +139,23 @@ public class Map extends JPanel implements Runnable{
 	private void updateTectonicPlates(Graphics g)
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
-			g.setColor(locations[i].getColor());
+			g.setColor(locations[i].getColor()); //TODO Clean up and fix
+			System.out.println(locations[i].getX() + " " +  locations[i].getY());
+			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+
+			System.out.println("done one " + i);
+		}
+		System.out.println("done");
+	}
+	
+	private void updateHeatGradients(Graphics g)
+	{
+		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
+			double temp = locations[i].getMantleTemperature();
+			if(temp > 255){
+				temp = 255;
+			}
+			g.setColor(new Color((int) temp, 0, 0));
 			System.out.println(locations[i].getX() + " " +  locations[i].getY());
 			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
 

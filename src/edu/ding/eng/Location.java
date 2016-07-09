@@ -5,7 +5,7 @@ import java.awt.Color;
 
 public class Location {
 
-	private double desert, forest, jungle, hills, plains, mountains, temperature;
+	private double desert, forest, jungle, hills, plains, mountains, temperature, mantleTemperature;
 	private boolean isLand, occupied = false;
 	private int x, y, ownerID;
 	private Color color;
@@ -60,6 +60,12 @@ public class Location {
 	}
 	public void setLand(boolean isLand) {
 		this.isLand = isLand;
+	}
+	public double getMantleTemperature() {
+		return mantleTemperature;
+	}
+	public void setMantleTemperature(double mantleTemperature) {
+		this.mantleTemperature = mantleTemperature;
 	}
 
 }
