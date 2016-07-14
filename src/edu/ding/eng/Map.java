@@ -41,11 +41,11 @@ public class Map extends JPanel implements Runnable{
 				mapMode = 0;
 				repaint();
 			}
-			
+
 		});
 		normalMode.setBounds(550, 50, 100, 50);
 		add(normalMode);
-		
+
 		JButton tectonicMode = new JButton("tectonic");
 		tectonicMode.addActionListener(new ActionListener(){
 
@@ -54,12 +54,12 @@ public class Map extends JPanel implements Runnable{
 				mapMode = 1;
 				repaint();
 			}
-			
+
 		});
-		
+
 		tectonicMode.setBounds(550, 110, 100, 50);
 		add(tectonicMode);
-		
+
 		JButton heatMode = new JButton("heat");
 		heatMode.addActionListener(new ActionListener(){
 
@@ -68,12 +68,12 @@ public class Map extends JPanel implements Runnable{
 				mapMode = 2;
 				repaint();
 			}
-			
+
 		});
-		
+
 		heatMode.setBounds(550, 170, 100, 50);
 		add(heatMode);
-		
+
 		JButton heightMode = new JButton("height");
 		heightMode.addActionListener(new ActionListener(){
 
@@ -82,14 +82,14 @@ public class Map extends JPanel implements Runnable{
 				mapMode = 3;
 				repaint();
 			}
-			
+
 		});
-		
+
 		heightMode.setBounds(550, 230, 100, 50);
 		add(heightMode);
-		
+
 		generateMap();
-		
+
 	}
 
 	private void generateMap()
@@ -128,7 +128,7 @@ public class Map extends JPanel implements Runnable{
 			System.out.println("ERROR");
 			break;
 		}
-		
+
 
 		if(countryLocations != null){ //for when Map is just generating terraforming screens
 			updateCountryPoints(g);
@@ -164,7 +164,7 @@ public class Map extends JPanel implements Runnable{
 		}
 		System.out.println("done");
 	}
-	
+
 	private void updateHeatGradients(Graphics g)
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves plate temperatures and draws them on map
@@ -180,7 +180,7 @@ public class Map extends JPanel implements Runnable{
 		}
 		System.out.println("done");
 	}
-	
+
 	private void updateHeightGradients(Graphics g)
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
@@ -190,7 +190,15 @@ public class Map extends JPanel implements Runnable{
 			double blue = 0;
 			if(height > 0){ //above sea level
 				red = 102. / 50000. * height;
+				if(red > 102){
+					red = 102;
+				}
 				green = 255 - 204 / 50000. * height;
+				if(green > 255){
+					green = 255;
+				} else if(green < 41){
+					green = 41;
+				}
 			}else{ //at or below sea level
 				blue = 255 + 255 / 50000 * height; //NOTE: height will always be negative here
 			}

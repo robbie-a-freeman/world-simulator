@@ -12,9 +12,11 @@ public class TectonicPlate {
 	private TectonicPlateControlGradient t;
 	private ConvectionCurrent convectionCurrent;
 	private List<HeightGradient> heightGradients = new ArrayList<HeightGradient>();
+	private List<HeightGradient> borderGradients = new ArrayList<HeightGradient>();
 	private List<TectonicPlate> tectonicPlates;
 	private List<Border> borders = new ArrayList<Border>();
 	private int ID;
+	private boolean bordersChanged = true;
 
 	public TectonicPlate(double centerX, double centerY, int worldX, int worldY, int ID){
 		this.setID(ID);
@@ -93,6 +95,8 @@ public class TectonicPlate {
 			h.setCenterX(h.getCenterX() + x);
 
 			h.setCenterY(h.getCenterY() + y);
+			
+			h.updateTime();
 		}
 		generateBorderLand();
 	}
@@ -122,24 +126,33 @@ public class TectonicPlate {
 
 	}
 	
-	private void generateBorderLand(){ //TODO WIP
-		for(Border b: borders){
-			if(b.isConverging()){
-				double x = 0;
-				for(Double i: b.getxCoords()){
-					x += i;
+	private void generateBorderLand(){
+		if(bordersChanged){
+			for(Border b: borders){
+				if(b.isConverging()){
+					double x = 0;
+					for(Double i: b.getxCoords()){
+						x += i;
+					}
+					x /= b.getxCoords().size(); //average x coordinate
+					
+					double y = 0;
+					for(Double i: b.getyCoords()){
+						y += i;
+					}
+					y /= b.getxCoords().size(); //average x coordinate
+					
+					borderGradients.add(new HeightGradient(x, y, (int) worldX, (int) worldY, 100., 1));
 				}
-				x /= b.getxCoords().size(); //average x coordinate
-				
-				double y = 0;
-				for(Double i: b.getyCoords()){
-					y += i;
-				}
-				y /= b.getxCoords().size(); //average x coordinate
-				
-				heightGradients.add(new HeightGradient(x, y, (int) worldX, (int) worldY, 10.));
+			}
+			bordersChanged = false;
+		} else {
+			for(HeightGradient h: borderGradients){
+				h.setStartingHeight(h.getStartingHeight() + 1);
+				h.updateTime();
 			}
 		}
+		
 	}
 
 	public Color getColor() {
@@ -196,5 +209,13 @@ public class TectonicPlate {
 
 	public void setTectonicPlates(List<TectonicPlate> tectonicPlates) {
 		this.tectonicPlates = tectonicPlates;
+	}
+
+	public List<HeightGradient> getBorderGradients() {
+		return borderGradients;
+	}
+
+	public void setBorderGradients(List<HeightGradient> borderGradients) {
+		this.borderGradients = borderGradients;
 	}
 }

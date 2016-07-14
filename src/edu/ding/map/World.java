@@ -61,13 +61,13 @@ public class World {
 							h.setTectonicHost(i);
 						}
 					}
-					tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 10)); //TODO change strength according to heat strength
+					tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 1, 0)); //TODO change strength according to heat strength
 				}
 			}
 			platesChanged = false;
 		}
 		for(HeatGradient h: heatGradients){
-			tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 10));
+			tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 1, 0));
 		}
 		for(int x = 0; x < tectonicPlates.size(); x++){
 			tectonicPlates.get(x).move();
@@ -115,11 +115,14 @@ public class World {
 			}*/
 			locations[x] = new Location(x - (y - 1) * worldSize[0], y);
 			locations[x].setColor(t.getColor());
-			double height = -1000.; //nearest neighbor interpolation with heat gradients
+			double height = -2000.; //nearest neighbor interpolation with heat gradients
 			for(int i = 0; i < t.getHeightGradients().size(); i++){
 				height += t.getHeightGradients().get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
 			}
-			if(height > -999){
+			for(int i = 0; i < t.getBorderGradients().size(); i++){
+				height += t.getBorderGradients().get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
+			}
+			if(height > -1999){
 				System.out.println(height);				
 			}
 			if(height >= 0.){
