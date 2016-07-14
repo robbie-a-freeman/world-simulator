@@ -13,7 +13,6 @@ import edu.ding.eng.Map;
 
 public class World {
 
-	private List<HeightGradient> heightGradients; //List<Type> list3 = new ArrayList<Type>(list1);
 	private Atmosphere atmosphere;
 	private List<TectonicPlate> tectonicPlates;
 	private List<Border> borders;
@@ -21,7 +20,8 @@ public class World {
 	private List<ConvectionCurrent> convectionCurrents;
 	private Mantle mantle;
 	private Core core;
-	private List<HeatGradient> heatGradients;
+	private HeatGradient[] heatGradients;
+	private boolean platesChanged = true, firstTime = true;
 
 	public World(int sizeX, int sizeY){
 		worldSize = new int[2];
@@ -35,18 +35,10 @@ public class World {
 			tectonicPlates.add(new TectonicPlate((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1], x));
 		}
 
-		borders = new ArrayList<Border>();
-
-		/*for(int x = 0; x < 100; x++){ //calculate borders TODO get border algorithm
-			for(int i = 0; i < 100; i++){
-				borders.add(new Border(x, ));
-			}
-		}*/
-
 		int x = r.nextInt(6) + 5; //generate mantle heat gradients
-		heatGradients = new ArrayList<HeatGradient>();
+		heatGradients = new HeatGradient[x];
 		for(int i = 0; i < x; i++){
-			heatGradients.add(new HeatGradient((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1]));
+			heatGradients[i] = new HeatGradient((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1]);
 		}
 
 		core = new Core();
@@ -57,9 +49,35 @@ public class World {
 	}
 
 	private void movePlates(){
+		if(platesChanged){
+			for(int x = 0; x < tectonicPlates.size(); x++){
+				tectonicPlates.get(x).generateHeatVector(heatGradients);
+				tectonicPlates.get(x).updateBorders(tectonicPlates);
+				for(HeatGradient h: heatGradients){
+					double maxControl = 0.; //nearest neighbor interpolation with tectonic plate gradients
+					for(int i = 0; i < tectonicPlates.size(); i++){
+						if(tectonicPlates.get(i).getT().calcNetStrength(h.centerX, h.centerY) > maxControl){
+							maxControl = tectonicPlates.get(i).getT().calcNetStrength(h.centerX, h.centerY);
+							h.setTectonicHost(i);
+						}
+					}
+					tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 10)); //TODO change strength according to heat strength
+				}
+			}
+			platesChanged = false;
+		}
+		for(HeatGradient h: heatGradients){
+			tectonicPlates.get(h.getTectonicHost()).getHeightGradients().add(new HeightGradient(h.centerX, h.centerY, worldSize[0], worldSize[1], 10));
+		}
 		for(int x = 0; x < tectonicPlates.size(); x++){
 			tectonicPlates.get(x).move();
 		}
+		double heat = 0.; //create height gradients from the heat
+		for(HeatGradient h: heatGradients){
+			//TODO match the heightGradients with the appropriate tectonicPlates
+			
+		}
+			
 	}
 
 	private void changeAtmosphere(){
@@ -78,7 +96,7 @@ public class World {
 				y++;
 			}
 			TectonicPlate t = null;
-			double maxControl = 0; //nearest neighbor interpolation with tectonic plate gradients
+			double maxControl = 0.; //nearest neighbor interpolation with tectonic plate gradients
 			for(int i = 0; i < tectonicPlates.size(); i++){
 				if(tectonicPlates.get(i).getT().calcNetStrength(x - (y - 1) * worldSize[0], y) > maxControl){
 					maxControl = tectonicPlates.get(i).getT().calcNetStrength(x - (y - 1) * worldSize[0], y);
@@ -88,21 +106,29 @@ public class World {
 			locations[x] = new Location(x - (y - 1) * worldSize[0], y);
 			locations[x].setColor(t.getColor());
 
-			double heat = 0; //nearest neighbor interpolation with heat gradients
-			for(int i = 0; i < heatGradients.size(); i++){
-				if(x == heatGradients.get(1).centerX + (heatGradients.get(1).centerY - 1) * worldSize[0]){
-					System.out.println(heat);
-				}
-				heat += heatGradients.get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
+			double heat = 0.; //nearest neighbor interpolation with heat gradients
+			for(int i = 0; i < heatGradients.length; i++){
+				heat += heatGradients[i].calcNetStrength(x - (y - 1) * worldSize[0], y);
 			}
+			/*if(heat >= 150. && firstTime){
+				t.getHeightGradients().add(new HeightGradient(x - (y - 1) * worldSize[0], y, worldSize[0], worldSize[1], 1000));
+			}*/
 			locations[x] = new Location(x - (y - 1) * worldSize[0], y);
 			locations[x].setColor(t.getColor());
-			
-			if(heat >= 200.0){ // TODO expand and fix - creates land from hot spots
+			double height = -1000.; //nearest neighbor interpolation with heat gradients
+			for(int i = 0; i < t.getHeightGradients().size(); i++){
+				height += t.getHeightGradients().get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
+			}
+			if(height > -999){
+				System.out.println(height);				
+			}
+			if(height >= 0.){
 				locations[x].setLand(true);
+				locations[x].setElevation(height);
 			}
 			locations[x].setMantleTemperature(heat);
 		}
+		firstTime = false;
 		return locations;
 	}
 
@@ -120,9 +146,14 @@ public class World {
 	}
 
 	public void run(){
-		movePlates();
+		for(int i = 0; i < 10000; i++){
+			movePlates();
+			if((i + 1) % 2000 == 0){
+				printFrame();			
+			}
+		}
 
-		printFrame();
+
 	}
 
 }

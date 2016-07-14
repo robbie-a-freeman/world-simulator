@@ -25,7 +25,7 @@ public class Map extends JPanel implements Runnable{
 	private int mapY = 500;
 	private Location locations[];
 	private Location countryLocations[][];
-	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat
+	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat, 3 is height
 	private int[] landTilesX = new int[mapX * mapY];
 	private int[] landTilesY = new int[mapX * mapY];
 	private Graphics g;
@@ -74,6 +74,20 @@ public class Map extends JPanel implements Runnable{
 		heatMode.setBounds(550, 170, 100, 50);
 		add(heatMode);
 		
+		JButton heightMode = new JButton("height");
+		heightMode.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				mapMode = 3;
+				repaint();
+			}
+			
+		});
+		
+		heightMode.setBounds(550, 230, 100, 50);
+		add(heightMode);
+		
 		generateMap();
 		
 	}
@@ -106,6 +120,9 @@ public class Map extends JPanel implements Runnable{
 			break;
 		case 2:
 			updateHeatGradients(g);
+			break;
+		case 3:
+			updateHeightGradients(g);
 			break;
 		default:
 			System.out.println("ERROR");
@@ -150,12 +167,35 @@ public class Map extends JPanel implements Runnable{
 	
 	private void updateHeatGradients(Graphics g)
 	{
-		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
+		for(int i = 0; i < locations.length; i++){ //retrieves plate temperatures and draws them on map
 			double temp = locations[i].getMantleTemperature();
 			if(temp > 255){
 				temp = 255;
 			}
 			g.setColor(new Color((int) temp, 0, 0));
+			System.out.println(locations[i].getX() + " " +  locations[i].getY());
+			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+
+			System.out.println("done one " + i);
+		}
+		System.out.println("done");
+	}
+	
+	private void updateHeightGradients(Graphics g)
+	{
+		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
+			double height = locations[i].getElevation();
+			double red = 0;
+			double green = 0;
+			double blue = 0;
+			if(height > 0){ //above sea level
+				red = 102. / 50000. * height;
+				green = 255 - 204 / 50000. * height;
+			}else{ //at or below sea level
+				blue = 255 + 255 / 50000 * height; //NOTE: height will always be negative here
+			}
+			System.out.println(height + " " + green);
+			g.setColor(new Color((int) red, (int) green, (int) blue));
 			System.out.println(locations[i].getX() + " " +  locations[i].getY());
 			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
 

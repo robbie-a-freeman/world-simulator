@@ -21,8 +21,24 @@ public class Gradient {
 		else{
 			distanceX = centerX - x;
 		}
-		distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(centerY - y, 2));//TODO add actually dynamic strength formulas
+		distance = Math.sqrt(Math.pow(distanceX, 2.) + Math.pow(centerY - y, 2.));//TODO add actually dynamic strength formulas
 		return distance;
+	}
+
+	public double getCenterX() {
+		return centerX;
+	}
+
+	public void setCenterX(double centerX) {
+		this.centerX = centerX;
+	}
+
+	public double getCenterY() {
+		return centerY;
+	}
+
+	public void setCenterY(double centerY) {
+		this.centerY = centerY;
 	}
 	
 }

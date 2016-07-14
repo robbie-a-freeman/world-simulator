@@ -1,6 +1,8 @@
 package edu.ding.map;
 
 public class HeatGradient extends Gradient {
+	
+	private int tectonicHost = -1; //if it's -1, that is an error
 
 	public HeatGradient(double centerX, double centerY, int worldX, int worldY) {
 		super(centerX, centerY, worldX, worldY);
@@ -15,6 +17,14 @@ public class HeatGradient extends Gradient {
 			strength = 200;
 		}
 		return strength;
+	}
+
+	public int getTectonicHost() {
+		return tectonicHost;
+	}
+
+	public void setTectonicHost(int tectonicHost) {
+		this.tectonicHost = tectonicHost;
 	}
 
 }
