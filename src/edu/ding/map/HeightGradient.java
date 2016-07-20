@@ -17,10 +17,10 @@ public class HeightGradient extends Gradient {
 		double strength;
 		double erosion;
 		
-		strengthDecay = 5 * Math.pow(calcDistance(x, y), 2.);
+		strengthDecay = 8 * Math.pow(calcDistance(x, y), 2.);
 		
 		if(type == 1){
-			strengthDecay -= timeElapsed * calcDistance(x, y) / 1000;
+			strengthDecay -= timeElapsed * calcDistance(x, y) / 10000;
 		}
 		
 		strength = startingHeight - strengthDecay;

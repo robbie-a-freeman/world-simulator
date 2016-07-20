@@ -19,22 +19,40 @@ public class World implements Runnable {
 		this.m = m;
 		numberOfCountries = countriesNum;
 		countries = new Country[numberOfCountries];
-		this.X = X + 2; //to account for the null location borders
-		this.Y = Y + 2;
 		setMarginX(1);
 		setMarginY(1);
-		locations = new Location[(this.X * this.Y)]; //0 through the limit
-		build();
+		this.X = X + 2 * marginX; //to account for the null location borders
+		this.Y = Y + 2 * marginY; //0 through the limit
 	}
 
-	private void build()
+	public void build()
 	{
-		assignLocations();
 		generateCountries();
+	}
+	
+	public void importWorld(Location[] locations){
+		this.locations = new Location[(X * Y)];
+		int index = 0;
+		for(int y = 0; y < Y; y++){
+			for(int x = 0; x < X; x++){
+				System.out.println(X * Y);
+				System.out.println(index);
+				if(x == 0 || x == X - 1 || y == Y - 1 || y == 0 || (x + (y - 1) * (X - 2 * marginX)) >= 250000){
+					this.locations[index] = null;
+				}
+				else{
+					System.out.println("Coords: " + index + " -> " + (index - X * marginY - 2 * marginX * (y - 1)));
+					this.locations[index] = locations[index - X * marginY - 2 * marginX * (y - 1)];
+				}
+				index++;
+			}
+		}
+		this.locations = locations;
 	}
 
 	private void assignLocations()
 	{
+		locations = new Location[(X * Y)];
 		for(int y = 0; y < Y; y++){
 			for(int x = 0; x < X; x++){
 				int index = x + y * X;
@@ -45,6 +63,7 @@ public class World implements Runnable {
 				}
 				else{
 					locations[index] = new Location(x, y);
+					locations[index].setLand(true);
 				}
 			}
 		}
@@ -89,8 +108,8 @@ public class World implements Runnable {
 	{
 		r = new SecureRandom();
 		for(int x = 0; x < numberOfCountries; x++) {
-			int l = r.nextInt(X*Y);
-			while(locations[l] == null || locations[l].isOccupied()){
+			int l = r.nextInt((X - 2) * (Y - 2)) + X;
+			while(l >= locations.length || locations[l] == null || locations[l].isOccupied() || !locations[l].isLand()){
 				l = r.nextInt(X*Y);
 			}
 			locations[l].setOccupied(true);

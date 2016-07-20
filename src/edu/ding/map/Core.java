@@ -4,7 +4,7 @@ public class Core extends InnerEarth{
 	
 	public Core(){
 		specificHeat = 4000; //TODO update stats
-		mass = 20000;
+		mass = 200000;
 		temperature = 5000;
 	}
 

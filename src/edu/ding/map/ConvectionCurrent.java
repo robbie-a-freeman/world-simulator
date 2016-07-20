@@ -12,7 +12,6 @@ public class ConvectionCurrent {
 	
 	public double movePlate(double mass){
 		double movement = force / mass;
-		//TODO actually make this
 		return movement;
 	}
 

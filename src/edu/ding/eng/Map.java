@@ -9,10 +9,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import edu.ding.map.TectonicPlate;
 
 
 public class Map extends JPanel implements Runnable{
@@ -23,11 +27,12 @@ public class Map extends JPanel implements Runnable{
 	private static final long serialVersionUID = 3967835280265684766L;
 	private int mapX = 500;
 	private int mapY = 500;
-	private Location locations[];
-	private Location countryLocations[][];
-	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat, 3 is height
+	private Location locations[] = new Location[mapX * mapY];
+	private Location countryLocations[][] = null;
+	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat, 3 is height, 4 is surface temp
 	private int[] landTilesX = new int[mapX * mapY];
 	private int[] landTilesY = new int[mapX * mapY];
+	private List<TectonicPlate> tectonicPlates = new ArrayList<TectonicPlate>();
 	private Graphics g;
 
 	public Map()
@@ -88,8 +93,24 @@ public class Map extends JPanel implements Runnable{
 		heightMode.setBounds(550, 230, 100, 50);
 		add(heightMode);
 
-		generateMap();
+		JButton surfaceTempMode = new JButton("surface temp");
+		surfaceTempMode.addActionListener(new ActionListener(){
 
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				mapMode = 4;
+				repaint();
+			}
+
+		});
+
+		surfaceTempMode.setBounds(550, 290, 100, 50);
+		add(surfaceTempMode);
+
+	}
+
+	public void updateTectonicPlates(List<TectonicPlate> tectonicPlates){
+		this.tectonicPlates = tectonicPlates;
 	}
 
 	private void generateMap()
@@ -101,18 +122,9 @@ public class Map extends JPanel implements Runnable{
 	{
 		switch(mapMode){
 		case 0:
-			for(int x = 1; x < mapX + 1; x++){
-				for(int y = 1; y < mapY + 1; y++){ //Not coloring in the null locations
-					this.g = g;
-					if(locations[(x - 1) + (y - 1) * mapX].isLand()){
-						g.setColor(Color.GREEN);
-						g.drawLine(x,y,x,y);
-					}
-					else{
-						g.setColor(Color.BLUE);
-						g.drawLine(x,y,x,y);
-					}
-				}
+			updateNormalPoints(g);
+			if(countryLocations != null){
+				updateCountryPoints(g);
 			}
 			break;
 		case 1:
@@ -124,15 +136,30 @@ public class Map extends JPanel implements Runnable{
 		case 3:
 			updateHeightGradients(g);
 			break;
+		case 4:
+			updateSurfaceTempGradients(g);
+			break;
 		default:
 			System.out.println("ERROR");
 			break;
 		}
+	}
 
-
-		if(countryLocations != null){ //for when Map is just generating terraforming screens
-			updateCountryPoints(g);
-		} 
+	private void updateSurfaceTempGradients(Graphics g) 
+	{
+		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
+			double temp = locations[i].getTemperature();
+			double red = temp;
+			double green = 0;
+			double blue = 0;
+			if(red > 255){
+				red = 255;
+			} else if(red < 0){
+				red = 0;
+			}
+			g.setColor(new Color((int) red, (int) green, (int) blue));
+			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+		}
 	}
 
 	private void updateCountryPoints(Graphics g)
@@ -141,13 +168,26 @@ public class Map extends JPanel implements Runnable{
 			if(countryLocations[i] != null){
 				g.setColor(countryLocations[i][0].getColor());
 				for(int x = 0; x < countryLocations[i].length; x++){
-					if(countryLocations[i][x] == null){
-						break;
-					}
-					else{
-						//	System.out.println(countryLocations[i][x].getX() + ", " + countryLocations[i][x].getY());
+					if(countryLocations[i][x] != null){
 						g.drawLine(countryLocations[i][x].getX(), countryLocations[i][x].getY(), countryLocations[i][x].getX(), countryLocations[i][x].getY());
 					}
+				}
+			}
+		}
+	}
+
+	private void updateNormalPoints(Graphics g)
+	{
+		for(int i = 0; i < locations.length; i++){ //retrieves country colors and draws them on map
+			if(locations[i] != null){
+				if(locations[i].isLand()){
+					g.setColor(Color.GREEN);
+					g.drawLine(locations[i].getX(),locations[i].getY(),locations[i].getX(),locations[i].getY());
+				}
+				else{
+					g.setColor(Color.BLUE);
+					g.drawLine(locations[i].getX(),locations[i].getY(),locations[i].getX(),locations[i].getY());
+					//System.out.println(locations[i].getX() + ", " + locations[i].getY());
 				}
 			}
 		}
@@ -157,12 +197,14 @@ public class Map extends JPanel implements Runnable{
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
 			g.setColor(locations[i].getColor()); //TODO Clean up and fix
-			System.out.println(locations[i].getX() + " " +  locations[i].getY());
 			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
-
-			System.out.println("done one " + i);
 		}
-		System.out.println("done");
+		for(TectonicPlate t: tectonicPlates){ //Draw arrows
+			g.setColor(Color.BLACK);
+			g.drawLine((int) t.getCenterX(), (int) t.getCenterY(), (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())));
+			g.drawLine((int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection()) - 5), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) - 5);
+		}
+
 	}
 
 	private void updateHeatGradients(Graphics g)
@@ -173,12 +215,8 @@ public class Map extends JPanel implements Runnable{
 				temp = 255;
 			}
 			g.setColor(new Color((int) temp, 0, 0));
-			System.out.println(locations[i].getX() + " " +  locations[i].getY());
 			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
-
-			System.out.println("done one " + i);
 		}
-		System.out.println("done");
 	}
 
 	private void updateHeightGradients(Graphics g)
@@ -202,14 +240,9 @@ public class Map extends JPanel implements Runnable{
 			}else{ //at or below sea level
 				blue = 255 + 255 / 50000 * height; //NOTE: height will always be negative here
 			}
-			System.out.println(height + " " + green);
 			g.setColor(new Color((int) red, (int) green, (int) blue));
-			System.out.println(locations[i].getX() + " " +  locations[i].getY());
 			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
-
-			System.out.println("done one " + i);
 		}
-		System.out.println("done");
 	}
 
 	@Override

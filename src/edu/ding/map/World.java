@@ -35,7 +35,7 @@ public class World {
 			tectonicPlates.add(new TectonicPlate((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1], x));
 		}
 
-		int x = r.nextInt(6) + 5; //generate mantle heat gradients
+		int x = r.nextInt(6) + 25; //generate mantle heat gradients
 		heatGradients = new HeatGradient[x];
 		for(int i = 0; i < x; i++){
 			heatGradients[i] = new HeatGradient((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1]);
@@ -43,16 +43,17 @@ public class World {
 
 		core = new Core();
 		mantle = new Mantle();
-
-		run();
-
 	}
 
 	private void movePlates(){
 		if(platesChanged){
 			for(int x = 0; x < tectonicPlates.size(); x++){
 				tectonicPlates.get(x).generateHeatVector(heatGradients);
-				tectonicPlates.get(x).updateBorders(tectonicPlates);
+			}
+			for(int x = 0; x < tectonicPlates.size(); x++){
+				tectonicPlates.get(x).updateBorders(tectonicPlates);				
+			}
+			for(int x = 0; x < tectonicPlates.size(); x++){
 				for(HeatGradient h: heatGradients){
 					double maxControl = 0.; //nearest neighbor interpolation with tectonic plate gradients
 					for(int i = 0; i < tectonicPlates.size(); i++){
@@ -122,14 +123,15 @@ public class World {
 			for(int i = 0; i < t.getBorderGradients().size(); i++){
 				height += t.getBorderGradients().get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
 			}
-			if(height > -1999){
-				System.out.println(height);				
-			}
 			if(height >= 0.){
 				locations[x].setLand(true);
 				locations[x].setElevation(height);
 			}
 			locations[x].setMantleTemperature(heat);
+			
+			double temp = 0; //in kelvin
+			temp += worldSize[1] / 2 - Math.abs(y - worldSize[1] / 2);
+			locations[x].setTemperature(temp);
 		}
 		firstTime = false;
 		return locations;
@@ -138,6 +140,7 @@ public class World {
 	public void printFrame(){
 		Map m = new Map();
 		m.updateLocations(generateMap(worldSize[0] * worldSize[1]), null);
+		m.updateTectonicPlates(tectonicPlates);
 		m.setPreferredSize(new Dimension(worldSize[0], worldSize[1]));
 		JFrame j = new JFrame();
 		JScrollPane s = new JScrollPane(m);
@@ -149,14 +152,17 @@ public class World {
 	}
 
 	public void run(){
-		for(int i = 0; i < 10000; i++){
+		for(int i = 0; i < 6000; i++){
 			movePlates();
-			if((i + 1) % 2000 == 0){
-				printFrame();			
+			if((i + 1) % 500 == 0){
+				System.out.println(i + 1);				
 			}
 		}
-
-
+	}
+	
+	public Location[] getLocations(){
+		run();
+		return generateMap(worldSize[0] * worldSize[1]);
 	}
 
 }

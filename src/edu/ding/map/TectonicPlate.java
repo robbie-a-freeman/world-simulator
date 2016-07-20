@@ -50,15 +50,22 @@ public class TectonicPlate {
 								}
 							}
 							if(!isDuplicate){
-								borders.add(new Border(this.ID, t.getID(), true)); //TODO fix boolean
+								double dir1 = this.getConvectionCurrent().getDirection();
+								double dir2 = t.getConvectionCurrent().getDirection();
+								if(Math.abs(Math.sin(dir1) + Math.sin(dir2)) != Math.abs(Math.sin(dir1)) + Math.abs(Math.sin(dir2)) //TODO fix bugged algo
+								&& Math.abs(Math.cos(dir1) + Math.cos(dir2)) != Math.abs(Math.cos(dir1)) + Math.abs(Math.cos(dir2))) { // if the upward and horizontal components are in opposite directions
+									borders.add(new Border(this.ID, t.getID(), true));
+								} else{
+									borders.add(new Border(this.ID, t.getID(), false));
+								}
 								borders.get(borders.size() - 1).addCoords(i, z);
+								
 							}
 						}
 					}
 				}
 			}
 		}
-		System.out.println(borders.size());
 	}
 
 	public void move(){ //moves the stuff on the plate, not the plate itself, about 1 year's worth of movement
@@ -117,7 +124,7 @@ public class TectonicPlate {
 		}
 		double finalAngle;
 		if(vectorX < 0){
-			finalAngle = Math.PI - Math.atan2(vectorY, vectorX);
+			finalAngle = Math.atan2(vectorY, vectorX);
 		} else{
 			finalAngle = Math.atan2(vectorY, vectorX);
 		}
@@ -217,5 +224,13 @@ public class TectonicPlate {
 
 	public void setBorderGradients(List<HeightGradient> borderGradients) {
 		this.borderGradients = borderGradients;
+	}
+
+	public ConvectionCurrent getConvectionCurrent() {
+		return convectionCurrent;
+	}
+
+	public void setConvectionCurrent(ConvectionCurrent convectionCurrent) {
+		this.convectionCurrent = convectionCurrent;
 	}
 }

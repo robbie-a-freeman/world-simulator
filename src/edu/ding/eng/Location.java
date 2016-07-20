@@ -73,5 +73,11 @@ public class Location {
 	public void setElevation(double elevation) {
 		this.elevation = elevation;
 	}
+	public double getTemperature() {
+		return temperature;
+	}
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
+	}
 
 }
