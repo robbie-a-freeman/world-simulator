@@ -149,16 +149,17 @@ public class Map extends JPanel implements Runnable{
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
 			double temp = locations[i].getTemperature();
-			double red = temp;
+			double red = temp * 255/600 - 100;
 			double green = 0;
 			double blue = 0;
 			if(red > 255){
-				red = 255;
+				green = 255; //error shows
+				red = 0;
 			} else if(red < 0){
 				red = 0;
 			}
 			g.setColor(new Color((int) red, (int) green, (int) blue));
-			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+			g.drawLine(locations[i].getX(), locations[i].getY(), locations[i].getX(), locations[i].getY());
 		}
 	}
 
@@ -210,7 +211,8 @@ public class Map extends JPanel implements Runnable{
 	private void updateHeatGradients(Graphics g)
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves plate temperatures and draws them on map
-			double temp = locations[i].getMantleTemperature();
+			double temp = locations[i].getMantleTemperature(); //should be between about 200 and 400, with most around 330
+			
 			if(temp > 255){
 				temp = 255;
 			}

@@ -129,8 +129,20 @@ public class World {
 			}
 			locations[x].setMantleTemperature(heat);
 			
-			double temp = 0; //in kelvin
-			temp += worldSize[1] / 2 - Math.abs(y - worldSize[1] / 2);
+			double temp = 0; //in kelvins
+			temp += worldSize[1] - Math.abs(y - worldSize[1] / 2) / 2;
+			if(!locations[x].isLand()){
+				double oceanTemp = Math.sqrt(2 * Math.abs(temp - 300.));
+				if(temp < 300.){
+					temp += oceanTemp;
+				} else{
+					temp -= oceanTemp;
+				}
+			}
+			else{
+				double landTemp = Math.sqrt(5 * Math.abs(temp - 400.));
+				temp += landTemp;
+			}
 			locations[x].setTemperature(temp);
 		}
 		firstTime = false;
