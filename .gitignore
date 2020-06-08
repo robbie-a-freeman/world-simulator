@@ -37,6 +37,8 @@
 # .idea/modules
 *.iml
 .idea/misc.xml
+.idea/workspace.iml
+Country Simulator.iml
 # *.ipr
 
 # CMake
