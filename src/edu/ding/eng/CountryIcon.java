@@ -27,6 +27,6 @@ public class CountryIcon extends JPanel {
 		this.g = g;
 		g.setColor(c);
 		System.out.println("Drawing");
-		g.drawLine(loc.getX(), loc.getY(), loc.getX(), loc.getY());
+		g.drawLine(loc.getX().intValue(), loc.getY().intValue(), loc.getX().intValue(), loc.getY().intValue());
 	}
 }

@@ -1,6 +1,7 @@
 package edu.ding.map;
 
 import java.awt.Dimension;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +105,7 @@ public class World {
 					t = tectonicPlates.get(i);
 				}
 			}
-			locations[x] = new Location(x - (y - 1) * worldSize[0], y);
+			locations[x] = new Location(new BigDecimal(x - (y - 1) * worldSize[0]), new BigDecimal(x - (y - 1) * worldSize[0] + 1), new BigDecimal(y), new BigDecimal(y+1), 0);
 			locations[x].setColor(t.getColor());
 
 			double heat = 0.; //nearest neighbor interpolation with heat gradients
@@ -114,8 +115,6 @@ public class World {
 			/*if(heat >= 150. && firstTime){
 				t.getHeightGradients().add(new HeightGradient(x - (y - 1) * worldSize[0], y, worldSize[0], worldSize[1], 1000));
 			}*/
-			locations[x] = new Location(x - (y - 1) * worldSize[0], y);
-			locations[x].setColor(t.getColor());
 			double height = -2000.; //nearest neighbor interpolation with heat gradients
 			for(int i = 0; i < t.getHeightGradients().size(); i++){
 				height += t.getHeightGradients().get(i).calcNetStrength(x - (y - 1) * worldSize[0], y);
@@ -164,10 +163,11 @@ public class World {
 	}
 
 	public void run(){
-		for(int i = 0; i < 6000; i++){
+		for(int i = 0; i < 5000; i++){
 			movePlates();
-			if((i + 1) % 500 == 0){
-				System.out.println(i + 1);				
+			if((i + 1) % 1250 == 0){
+				System.out.println(i + 1);
+				printFrame();
 			}
 		}
 	}

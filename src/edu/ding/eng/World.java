@@ -1,6 +1,7 @@
 package edu.ding.eng;
 
 import java.awt.Color;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 
 
@@ -62,7 +63,7 @@ public class World implements Runnable {
 					locations[index] = null;
 				}
 				else{
-					locations[index] = new Location(x, y);
+					locations[index] = new Location(new BigDecimal(x), new BigDecimal(x + 1),  new BigDecimal(y), new BigDecimal(y + 1), 1);
 					locations[index].setLand(true);
 				}
 			}

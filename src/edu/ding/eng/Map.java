@@ -9,6 +9,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,12 @@ public class Map extends JPanel implements Runnable{
 	private int[] landTilesY = new int[mapX * mapY];
 	private List<TectonicPlate> tectonicPlates = new ArrayList<TectonicPlate>();
 	private Graphics g;
+
+	private int minXView = 0;
+	private int maxXView = 500;
+	private int minYView = 0;
+	private int maxYView = 500;
+
 
 	public Map()
 	{
@@ -107,15 +116,150 @@ public class Map extends JPanel implements Runnable{
 		surfaceTempMode.setBounds(550, 290, 100, 50);
 		add(surfaceTempMode);
 
+		// listener for zooming in
+		this.addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				int mouseWheelChange = e.getWheelRotation();
+				// negative = zoom in, positive = zoom out
+				if (mouseWheelChange < 0) {
+					zoomIn(e.getX(), e.getY());
+					System.out.println("Zooming in");
+					repaint();
+				} else {
+					zoomOut(e.getX(), e.getY());
+					System.out.println("Zooming out");
+					repaint();
+				}
+			}
+		});
+
+	}
+
+	// zooms in, with a focus towards centering on x, y
+	private void zoomIn(int x, int y) {
+
+	    if (x < 0) {
+	        x = 0;
+        } else if (x > mapX - 1) {
+	        x = mapX - 1;
+        }
+        if (y < 0) {
+            y = 0;
+        } else if (y > mapY - 1) {
+            y = mapY - 1;
+        }
+
+        // todo
+		int centerX = minXView + (maxXView - minXView) * x / mapX;
+		int centerY = minYView + (maxYView - minYView) * y / mapY;
+
+		int halfXView = (int) ((maxXView - minXView) / 2 / 1.5);
+		int halfYView = (int) ((maxYView - minYView) / 2 / 1.5);
+
+		if (centerX - halfXView < 0) {
+			maxXView = halfXView * 2;
+			minXView = 0;
+		} else if (centerX + halfXView >= mapX) {
+			minXView = mapX - halfXView * 2;
+			maxXView = mapX - 1;
+		} else {
+			maxXView = centerX + halfXView;
+			minXView = centerX - halfXView;
+		}
+
+		if (centerY - halfYView < 0) {
+			maxYView = halfYView * 2;
+			minYView = 0;
+		}  else if (centerY + halfYView >= mapY) {
+			minYView = mapY - halfYView * 2;
+			maxYView = mapY - 1;
+		} else {
+			maxYView = centerY + halfYView;
+			minYView = centerY - halfYView;
+		}
+
+		// todo
+		if (minXView < 0) {
+		    minXView = 0;
+        }
+        if (maxXView > mapX - 1) {
+		    maxXView = mapX - 1;
+        }
+        if (minYView < 0) {
+            minYView = 0;
+        }
+        if (maxYView > mapY - 1) {
+            maxYView = mapY - 1;
+        }
+
+	}
+
+	// zooms out, with a focus from x, y
+	private void zoomOut(int x, int y) {
+
+        if (x < 0) {
+            x = 0;
+        } else if (x > mapX - 1) {
+            x = mapX - 1;
+        }
+        if (y < 0) {
+            y = 0;
+        } else if (y > mapY - 1) {
+            y = mapY - 1;
+        }
+
+        // todo modularize screen coords
+        int centerX = minXView + (maxXView - minXView) * x / mapX;
+        int centerY = minYView + (maxYView - minYView) * y / mapY;
+
+        int halfXView = (int) ((maxXView - minXView) / 2 * 1.5);
+        int halfYView = (int) ((maxYView - minYView) / 2 * 1.5);
+
+        if (centerX - halfXView < 0) {
+            maxXView = halfXView * 2;
+            minXView = 0;
+        } else if (centerX + halfXView >= mapX) {
+            minXView = mapX - halfXView * 2;
+            maxXView = mapX - 1;
+        } else {
+            maxXView = centerX + halfXView;
+            minXView = centerX - halfXView;
+        }
+
+        if (centerY - halfYView < 0) {
+            maxYView = halfYView * 2;
+            minYView = 0;
+        }  else if (centerY + halfYView >= mapY) {
+            minYView = mapY - halfYView * 2;
+            maxYView = mapY - 1;
+        } else {
+            maxYView = centerY + halfYView;
+            minYView = centerY - halfYView;
+        }
+
+        //todo clamp method
+        if (minXView < 0) {
+            minXView = 0;
+        }
+        if (maxXView > mapX) {
+            maxXView = mapX;
+        }
+        if (minYView < 0) {
+            minYView = 0;
+        }
+        if (maxYView > mapY) {
+            maxYView = mapY;
+        }
+	}
+
+	// paints a location at the given
+	private void paintPoint(Graphics g, Color c, Location loc) {
+
 	}
 
 	public void updateTectonicPlates(List<TectonicPlate> tectonicPlates){
 		this.tectonicPlates = tectonicPlates;
-	}
-
-	private void generateMap()
-	{
-
 	}
 
 	public void paintComponent(Graphics g)
@@ -145,6 +289,36 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
+	private void updateNormalPoints(Graphics g)
+	{
+		/*for(int i = 0; i < locations.length; i++){ //retrieves country colors and draws them on map
+			if(locations[i] != null){
+				if(locations[i].isLand()){
+					g.setColor(Color.GREEN);
+					g.drawLine(locations[i].getX().intValue(),locations[i].getY().intValue(),locations[i].getX().intValue(),locations[i].getY().intValue());
+				}
+				else{
+					g.setColor(Color.BLUE);
+					g.drawLine(locations[i].getX().intValue(),locations[i].getY().intValue(),locations[i].getX().intValue(),locations[i].getY().intValue());
+					//System.out.println(locations[i].getX() + ", " + locations[i].getY());
+				}
+			}
+		} */
+
+		for(int y = 0; y < mapY; y++){ //retrieves land colors and draws them on map
+			for(int x = 0; x < mapX; x++){
+				double locX = minXView + (maxXView - minXView) * x / (double) mapX;
+				double locY = minYView + (maxYView - minYView) * y / (double) mapY;
+				boolean isLand = locations[mapX * (int) locY + (int) locX].isLand();
+				Color c = Color.BLUE;
+				if (isLand)
+					c = Color.GREEN;
+				g.setColor(c);
+				g.drawLine(x, y, x, y);
+			}
+		}
+	}
+
 	private void updateSurfaceTempGradients(Graphics g) 
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
@@ -159,7 +333,7 @@ public class Map extends JPanel implements Runnable{
 				red = 0;
 			}
 			g.setColor(new Color((int) red, (int) green, (int) blue));
-			g.drawLine(locations[i].getX(), locations[i].getY(), locations[i].getX(), locations[i].getY());
+			g.drawLine(locations[i].getX().intValue(), locations[i].getY().intValue(), locations[i].getX().intValue(), locations[i].getY().intValue());
 		}
 	}
 
@@ -170,25 +344,8 @@ public class Map extends JPanel implements Runnable{
 				g.setColor(countryLocations[i][0].getColor());
 				for(int x = 0; x < countryLocations[i].length; x++){
 					if(countryLocations[i][x] != null){
-						g.drawLine(countryLocations[i][x].getX(), countryLocations[i][x].getY(), countryLocations[i][x].getX(), countryLocations[i][x].getY());
+						g.drawLine( countryLocations[i][x].getX().intValue(), countryLocations[i][x].getY().intValue(), countryLocations[i][x].getX().intValue(), countryLocations[i][x].getY().intValue() );
 					}
-				}
-			}
-		}
-	}
-
-	private void updateNormalPoints(Graphics g)
-	{
-		for(int i = 0; i < locations.length; i++){ //retrieves country colors and draws them on map
-			if(locations[i] != null){
-				if(locations[i].isLand()){
-					g.setColor(Color.GREEN);
-					g.drawLine(locations[i].getX(),locations[i].getY(),locations[i].getX(),locations[i].getY());
-				}
-				else{
-					g.setColor(Color.BLUE);
-					g.drawLine(locations[i].getX(),locations[i].getY(),locations[i].getX(),locations[i].getY());
-					//System.out.println(locations[i].getX() + ", " + locations[i].getY());
 				}
 			}
 		}
@@ -198,7 +355,7 @@ public class Map extends JPanel implements Runnable{
 	{
 		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
 			g.setColor(locations[i].getColor()); //TODO Clean up and fix
-			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+			g.drawLine(locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue(), locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue());
 		}
 		for(TectonicPlate t: tectonicPlates){ //Draw arrows
 			g.setColor(Color.BLACK);
@@ -217,7 +374,7 @@ public class Map extends JPanel implements Runnable{
 				temp = 255;
 			}
 			g.setColor(new Color((int) temp, 0, 0));
-			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+			g.drawLine(locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue(), locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue());
 		}
 	}
 
@@ -240,10 +397,10 @@ public class Map extends JPanel implements Runnable{
 					green = 41;
 				}
 			}else{ //at or below sea level
-				blue = 255 + 255 / 50000 * height; //NOTE: height will always be negative here
+				blue = 255 + 255 / 10000 * height; //NOTE: height will always be negative here
 			}
 			g.setColor(new Color((int) red, (int) green, (int) blue));
-			g.drawLine(locations[i].getX() + 1, locations[i].getY() + 1, locations[i].getX() + 1, locations[i].getY() + 1);
+			g.drawLine(locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue(), locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue());
 		}
 	}
 
