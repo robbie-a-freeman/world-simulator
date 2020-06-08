@@ -7,10 +7,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,15 +121,28 @@ public class Map extends JPanel implements Runnable{
 				// negative = zoom in, positive = zoom out
 				if (mouseWheelChange < 0) {
 					zoomIn(e.getX(), e.getY());
-					System.out.println("Zooming in");
+					//System.out.println("Zooming in");
 					repaint();
 				} else {
 					zoomOut(e.getX(), e.getY());
-					System.out.println("Zooming out");
+					//System.out.println("Zooming out");
 					repaint();
 				}
 			}
 		});
+
+		this.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                System.out.println("being dragged");
+                translateWindow(e.getX(), e.getY());
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                //System.out.println("unimplemented"); - probably for info popups in the future
+            }
+        });
 
 	}
 
@@ -141,13 +151,13 @@ public class Map extends JPanel implements Runnable{
 
 	    if (x < 0) {
 	        x = 0;
-        } else if (x > mapX - 1) {
-	        x = mapX - 1;
+        } else if (x > mapX) {
+	        x = mapX;
         }
         if (y < 0) {
             y = 0;
-        } else if (y > mapY - 1) {
-            y = mapY - 1;
+        } else if (y > mapY) {
+            y = mapY;
         }
 
         // todo
@@ -196,17 +206,17 @@ public class Map extends JPanel implements Runnable{
 	}
 
 	// zooms out, with a focus from x, y
-	private void zoomOut(int x, int y) {
+	private void zoomOut(int x, int y) { //todo wont zoom out if too zoomed in
 
         if (x < 0) {
             x = 0;
-        } else if (x > mapX - 1) {
-            x = mapX - 1;
+        } else if (x > mapX) {
+            x = mapX;
         }
         if (y < 0) {
             y = 0;
-        } else if (y > mapY - 1) {
-            y = mapY - 1;
+        } else if (y > mapY) {
+            y = mapY;
         }
 
         // todo modularize screen coords
@@ -252,6 +262,56 @@ public class Map extends JPanel implements Runnable{
             maxYView = mapY;
         }
 	}
+
+	private void translateWindow(int x, int y) {
+        // todo modularize screen coords
+        int prevCenterX = (minXView + maxXView) / 2;
+        int prevCenterY = (minYView + maxYView) / 2;
+
+        System.out.println("From " + prevCenterX + ", " + prevCenterY + " to " + x + ", " + y);
+
+        if (x < 0) {
+            return;
+        } else if (x > mapX - 1) {
+            return;
+        }
+        if (y < 0) {
+            return;
+        } else if (y > mapY - 1) {
+            return;
+        }
+
+
+        // translate
+        int deltaX = x - prevCenterX; // TODO scale x and y
+        int deltaY = y - prevCenterY;
+
+        int halfXView = (maxXView - minXView) / 2;
+        int halfYView = (maxYView - minYView) / 2;
+
+        if (x - halfXView < 0) {
+            maxXView = halfXView * 2;
+            minXView = 0;
+        } else if (x + halfXView >= mapX) {
+            minXView = mapX - halfXView * 2;
+            maxXView = mapX - 1; //todo
+        } else {
+            maxXView += deltaX;
+            minXView += deltaX;
+        }
+
+        if (y - halfYView < 0) {
+            maxYView = halfYView * 2;
+            minYView = 0;
+        }  else if (y + halfYView >= mapY) {
+            minYView = mapY - halfYView * 2;
+            maxYView = mapY - 1; //todo
+        } else {
+            maxYView += deltaY;
+            minYView += deltaY;
+        }
+
+    }
 
 	// paints a location at the given
 	private void paintPoint(Graphics g, Color c, Location loc) {
