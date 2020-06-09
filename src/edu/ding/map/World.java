@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 
 import edu.ding.eng.Location;
 import edu.ding.eng.Map;
+import edu.ding.eng.MapWindow;
 
 public class World {
 
@@ -152,14 +153,7 @@ public class World {
 		Map m = new Map();
 		m.updateLocations(generateMap(worldSize[0] * worldSize[1]), null);
 		m.updateTectonicPlates(tectonicPlates);
-		m.setPreferredSize(new Dimension(worldSize[0], worldSize[1]));
-		JFrame j = new JFrame();
-		JScrollPane s = new JScrollPane(m);
-		s.setPreferredSize(new Dimension(worldSize[0], worldSize[1]));
-		j.add(s);
-		j.setVisible(true);
-		j.setSize(700,600);
-		j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		MapWindow j = new MapWindow(m);
 	}
 
 	public void run(){

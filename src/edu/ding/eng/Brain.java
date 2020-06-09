@@ -26,14 +26,7 @@ public class Brain {
 		edu.ding.eng.World w = new edu.ding.eng.World(m, 10, 500, 500);
 		w.importWorld(new edu.ding.map.World(500, 500).getLocations());
 		w.build();
-		m.setPreferredSize(new Dimension(500,500));
-		JFrame j = new JFrame();
-		JScrollPane s = new JScrollPane(m);
-		s.setPreferredSize(new Dimension(500,500));
-		j.add(s);
-		j.setVisible(true);
-		j.setSize(700,600);
-		j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		MapWindow j = new MapWindow(m);
 		
 		ScheduledExecutorService e = Executors.newSingleThreadScheduledExecutor();
 		

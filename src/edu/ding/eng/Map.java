@@ -1,12 +1,6 @@
 package edu.ding.eng;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,10 +24,11 @@ public class Map extends JPanel implements Runnable{
 	private int mapY = 500;
 	private Location locations[] = new Location[mapX * mapY];
 	private Location countryLocations[][] = null;
-	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat, 3 is height, 4 is surface temp
 	private int[] landTilesX = new int[mapX * mapY];
 	private int[] landTilesY = new int[mapX * mapY];
 	private List<TectonicPlate> tectonicPlates = new ArrayList<TectonicPlate>();
+	private int mapMode = 0; //0 is normal, 1 is tectonic, 2 is heat, 3 is height, 4 is surface temp
+	private int zoomLevel = 1;
 	private Graphics g;
 
 	private int minXView = 0;
@@ -44,75 +39,9 @@ public class Map extends JPanel implements Runnable{
 
 	public Map()
 	{
+		super();
+		this.setPreferredSize(new Dimension(500,500));
 		setLayout(null);
-		JButton normalMode = new JButton("normal");
-		normalMode.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				mapMode = 0;
-				repaint();
-			}
-
-		});
-		normalMode.setBounds(550, 50, 100, 50);
-		add(normalMode);
-
-		JButton tectonicMode = new JButton("tectonic");
-		tectonicMode.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				mapMode = 1;
-				repaint();
-			}
-
-		});
-
-		tectonicMode.setBounds(550, 110, 100, 50);
-		add(tectonicMode);
-
-		JButton heatMode = new JButton("heat");
-		heatMode.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				mapMode = 2;
-				repaint();
-			}
-
-		});
-
-		heatMode.setBounds(550, 170, 100, 50);
-		add(heatMode);
-
-		JButton heightMode = new JButton("height");
-		heightMode.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				mapMode = 3;
-				repaint();
-			}
-
-		});
-
-		heightMode.setBounds(550, 230, 100, 50);
-		add(heightMode);
-
-		JButton surfaceTempMode = new JButton("surface temp");
-		surfaceTempMode.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				mapMode = 4;
-				repaint();
-			}
-
-		});
-
-		surfaceTempMode.setBounds(550, 290, 100, 50);
-		add(surfaceTempMode);
 
 		// listener for zooming in
 		this.addMouseWheelListener(new MouseWheelListener() {
@@ -190,6 +119,7 @@ public class Map extends JPanel implements Runnable{
 		this.addMouseListener(m);
 
 
+		this.setVisible(true);
 	}
 
 	// zooms in, with a focus towards centering on x, y
@@ -248,6 +178,13 @@ public class Map extends JPanel implements Runnable{
         if (maxYView > mapY - 1) {
             maxYView = mapY - 1;
         }
+
+		// calculate the zoomLevel
+		int widthTilesVisible = (int) Math.pow(2, zoomLevel - 1) * (maxXView - minXView);
+		if (widthTilesVisible < mapX) {
+			zoomLevel++;
+			System.out.println("zoom lvl: " + zoomLevel);
+		}
 
 	}
 
@@ -312,6 +249,13 @@ public class Map extends JPanel implements Runnable{
         if (maxYView > mapY) {
             maxYView = mapY;
         }
+
+		// calculate the zoomLevel
+		int widthTilesVisible = (int) Math.pow(2, zoomLevel - 1) * (maxXView - minXView);
+		if (widthTilesVisible >= mapX) {
+			zoomLevel--;
+			System.out.println("zoom lvl: " + zoomLevel);
+		}
 	}
 
 	private void translateWindow(int oldX, int oldY, int x, int y) {
@@ -528,6 +472,10 @@ public class Map extends JPanel implements Runnable{
 	{
 		locations = locs;
 		countryLocations = countryLocs;
+	}
+
+	public void setMapMode(int mode) {
+		mapMode = mode;
 	}
 
 }
