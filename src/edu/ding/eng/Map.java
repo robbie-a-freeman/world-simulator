@@ -348,19 +348,6 @@ public class Map extends JPanel implements Runnable{
 
 	private void updateNormalPoints(Graphics g)
 	{
-		/*for(int i = 0; i < locations.length; i++){ //retrieves country colors and draws them on map
-			if(locations[i] != null){
-				if(locations[i].isLand()){
-					g.setColor(Color.GREEN);
-					g.drawLine(locations[i].getX().intValue(),locations[i].getY().intValue(),locations[i].getX().intValue(),locations[i].getY().intValue());
-				}
-				else{
-					g.setColor(Color.BLUE);
-					g.drawLine(locations[i].getX().intValue(),locations[i].getY().intValue(),locations[i].getX().intValue(),locations[i].getY().intValue());
-					//System.out.println(locations[i].getX() + ", " + locations[i].getY());
-				}
-			}
-		} */
 
 		for(int y = 0; y < mapY; y++){ //retrieves land colors and draws them on map
 			for(int x = 0; x < mapX; x++){
@@ -416,8 +403,27 @@ public class Map extends JPanel implements Runnable{
 		}
 		for(TectonicPlate t: tectonicPlates){ //Draw arrows
 			g.setColor(Color.BLACK);
-			g.drawLine((int) t.getCenterX(), (int) t.getCenterY(), (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())));
-			g.drawLine((int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection()) - 5), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) - 5);
+			//g.drawLine((int) t.getCenterX(), (int) t.getCenterY(), (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())));
+			//g.drawLine((int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) + 5, (int) (t.getCenterX() +  30 * Math.cos(t.getConvectionCurrent().getDirection()) - 5), (int) (t.getCenterY() +  30 * Math.sin(t.getConvectionCurrent().getDirection())) - 5);
+
+			double[] orientation = new double[]{Math.cos(t.getConvectionCurrent().getDirection()), Math.sin(t.getConvectionCurrent().getDirection())};
+			int arrowHeadX = (int) ((orientation[0] * 30) + t.getCenterX());
+			int arrowHeadY = (int) ((orientation[1] * 30) + t.getCenterY());
+			g.drawLine((int) t.getCenterX(), (int) t.getCenterY(), arrowHeadX, arrowHeadY);
+			double[] arrowHeadSide1 = new double[2];
+			double[] arrowHeadSide2 = new double[2];
+
+			double[] arrowMidpoint = new double[] {(int) ((arrowHeadX - t.getCenterX()) / 2 + t.getCenterX()), (int) ((arrowHeadY - t.getCenterY()) / 2 + t.getCenterY())};
+			double[] perpOrientation = new double[] {-1 * orientation[1], orientation[0]};
+			arrowHeadSide1[0] = (perpOrientation[0] * 5) + arrowMidpoint[0];
+			arrowHeadSide1[1] = (perpOrientation[1] * 5) + arrowMidpoint[1];
+			arrowHeadSide2[0] = (perpOrientation[0] * -5) + arrowMidpoint[0];
+			arrowHeadSide2[1] = (perpOrientation[1] * -5) + arrowMidpoint[1];
+
+
+			g.drawLine(arrowHeadX, arrowHeadY, (int) arrowHeadSide1[0], (int) arrowHeadSide1[1]);
+			g.drawLine(arrowHeadX, arrowHeadY, (int) arrowHeadSide2[0], (int) arrowHeadSide2[1]);
+
 		}
 
 	}
