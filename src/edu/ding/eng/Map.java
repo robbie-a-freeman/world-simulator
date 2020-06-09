@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
 import edu.ding.map.TectonicPlate;
 
@@ -131,18 +132,63 @@ public class Map extends JPanel implements Runnable{
 			}
 		});
 
-		this.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                System.out.println("being dragged");
-                translateWindow(e.getX(), e.getY());
-            }
+		MouseInputListener m = new MouseInputListener() {
+			boolean isBeingDragged = false;
+			int dragPointX = -1;
+			int dragPointY = -1;
 
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                //System.out.println("unimplemented"); - probably for info popups in the future
-            }
-        });
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//System.out.println("mouse press");
+				isBeingDragged = true;
+				dragPointX = e.getX();
+				dragPointY = e.getY();
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//System.out.println("mouse release");
+				isBeingDragged = false;
+				dragPointX = -1;
+				dragPointY = -1;
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				//probably for info popups in the future
+				if (isBeingDragged) {
+					translateWindow(dragPointX, dragPointY, e.getX(), e.getY());
+					dragPointX = e.getX();
+					dragPointY = e.getY();
+					repaint();
+					revalidate();
+				}
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+
+			}
+		};
+
+		this.addMouseMotionListener(m);
+		this.addMouseListener(m);
+
 
 	}
 
@@ -172,7 +218,7 @@ public class Map extends JPanel implements Runnable{
 			minXView = 0;
 		} else if (centerX + halfXView >= mapX) {
 			minXView = mapX - halfXView * 2;
-			maxXView = mapX - 1;
+			maxXView = mapX;
 		} else {
 			maxXView = centerX + halfXView;
 			minXView = centerX - halfXView;
@@ -183,7 +229,7 @@ public class Map extends JPanel implements Runnable{
 			minYView = 0;
 		}  else if (centerY + halfYView >= mapY) {
 			minYView = mapY - halfYView * 2;
-			maxYView = mapY - 1;
+			maxYView = mapY;
 		} else {
 			maxYView = centerY + halfYView;
 			minYView = centerY - halfYView;
@@ -223,15 +269,20 @@ public class Map extends JPanel implements Runnable{
         int centerX = minXView + (maxXView - minXView) * x / mapX;
         int centerY = minYView + (maxYView - minYView) * y / mapY;
 
-        int halfXView = (int) ((maxXView - minXView) / 2 * 1.5);
-        int halfYView = (int) ((maxYView - minYView) / 2 * 1.5);
+        int halfXView = (int) Math.ceil(((maxXView - minXView) / 2 * 1.5));
+        int halfYView = (int) Math.ceil(((maxYView - minYView) / 2 * 1.5));
+
+        if (halfXView <= 1)
+        	halfXView = 2;
+		if (halfYView <= 1)
+			halfYView = 2;
 
         if (centerX - halfXView < 0) {
             maxXView = halfXView * 2;
             minXView = 0;
         } else if (centerX + halfXView >= mapX) {
             minXView = mapX - halfXView * 2;
-            maxXView = mapX - 1;
+            maxXView = mapX;
         } else {
             maxXView = centerX + halfXView;
             minXView = centerX - halfXView;
@@ -242,7 +293,7 @@ public class Map extends JPanel implements Runnable{
             minYView = 0;
         }  else if (centerY + halfYView >= mapY) {
             minYView = mapY - halfYView * 2;
-            maxYView = mapY - 1;
+            maxYView = mapY;
         } else {
             maxYView = centerY + halfYView;
             minYView = centerY - halfYView;
@@ -263,49 +314,51 @@ public class Map extends JPanel implements Runnable{
         }
 	}
 
-	private void translateWindow(int x, int y) {
+	private void translateWindow(int oldX, int oldY, int x, int y) {
         // todo modularize screen coords
-        int prevCenterX = (minXView + maxXView) / 2;
-        int prevCenterY = (minYView + maxYView) / 2;
+		int prevCenterX = minXView + (maxXView - minXView) * oldX / mapX;
+		int prevCenterY = minYView + (maxYView - minYView) * oldY / mapY;
+		int centerX = minXView + (maxXView - minXView) * x / mapX;
+		int centerY = minYView + (maxYView - minYView) * y / mapY;
 
-        System.out.println("From " + prevCenterX + ", " + prevCenterY + " to " + x + ", " + y);
+        //System.out.println("From " + prevCenterX + ", " + prevCenterY + " to " + centerX + ", " + centerY);
 
-        if (x < 0) {
+        if (oldX < 0 || x < 0) {
             return;
-        } else if (x > mapX - 1) {
+        } else if (oldX > mapX - 1 || x > mapX - 1) {
             return;
         }
-        if (y < 0) {
+        if (oldY < 0 || y < 0) {
             return;
-        } else if (y > mapY - 1) {
+        } else if (oldY > mapY - 1 || y > mapY - 1) {
             return;
         }
 
 
         // translate
-        int deltaX = x - prevCenterX; // TODO scale x and y
-        int deltaY = y - prevCenterY;
+        int deltaX = prevCenterX - centerX;
+        int deltaY = prevCenterY - centerY;
 
         int halfXView = (maxXView - minXView) / 2;
         int halfYView = (maxYView - minYView) / 2;
 
-        if (x - halfXView < 0) {
+        if (centerX - halfXView < 0) {
             maxXView = halfXView * 2;
             minXView = 0;
-        } else if (x + halfXView >= mapX) {
+        } else if (centerX + halfXView >= mapX) {
             minXView = mapX - halfXView * 2;
-            maxXView = mapX - 1; //todo
+            maxXView = mapX; //todo
         } else {
             maxXView += deltaX;
             minXView += deltaX;
         }
 
-        if (y - halfYView < 0) {
+        if (centerY - halfYView < 0) {
             maxYView = halfYView * 2;
             minYView = 0;
-        }  else if (y + halfYView >= mapY) {
+        }  else if (centerY + halfYView >= mapY) {
             minYView = mapY - halfYView * 2;
-            maxYView = mapY - 1; //todo
+            maxYView = mapY; //todo
         } else {
             maxYView += deltaY;
             minYView += deltaY;
@@ -344,7 +397,7 @@ public class Map extends JPanel implements Runnable{
 			updateSurfaceTempGradients(g);
 			break;
 		default:
-			System.out.println("ERROR");
+			System.err.println("ERROR");
 			break;
 		}
 	}
@@ -468,6 +521,7 @@ public class Map extends JPanel implements Runnable{
 	public void run()
 	{
 		repaint();
+		revalidate();
 	}
 
 	public void updateLocations(Location[] locs, Location[][] countryLocs) 
