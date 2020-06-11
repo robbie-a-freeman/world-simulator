@@ -25,23 +25,54 @@ public class World {
 	private HeatGradient[] heatGradients;
 	private boolean platesChanged = true, firstTime = true;
 
+	private int landSubdivisions = 0;
+
 	public World(int sizeX, int sizeY){
-		worldSize = new int[2];
-		worldSize[0] = sizeX;
-		worldSize[1] = sizeY;
-
-		tectonicPlates = new ArrayList<TectonicPlate>();
-
+		setupWorld(sizeX, sizeY);
 		SecureRandom r = new SecureRandom(); //generate tectonic plates
 		for(int x = 0; x < 100; x++){
 			tectonicPlates.add(new TectonicPlate((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1], x));
 		}
-
 		int x = r.nextInt(6) + 25; //generate mantle heat gradients
 		heatGradients = new HeatGradient[x];
 		for(int i = 0; i < x; i++){
 			heatGradients[i] = new HeatGradient((double) r.nextInt(worldSize[0]), (double) r.nextInt(worldSize[1]), worldSize[0], worldSize[1]);
 		}
+	}
+
+	public World(int sizeX, int sizeY, String templateName) {
+		switch (templateName) {
+
+			case "Dual Convergent":
+				setupWorld(sizeX, sizeY);
+				tectonicPlates.add(new TectonicPlate(sizeX / 4, sizeY / 2, sizeX, sizeY, 0));
+				tectonicPlates.add(new TectonicPlate(3 * sizeX / 4, sizeY / 2, sizeX, sizeY, 1));
+
+				heatGradients = new HeatGradient[2];
+				heatGradients[0] = new HeatGradient(sizeX / 4 - 0.5, sizeY / 2, sizeX, sizeY);
+				heatGradients[1] = new HeatGradient(3 * sizeX / 4 + 0.5, sizeY / 2, sizeX, sizeY);
+				break;
+			case "Dual Divergent":
+				setupWorld(sizeX, sizeY);
+				tectonicPlates.add(new TectonicPlate(sizeX / 4, sizeY / 2, sizeX, sizeY, 0));
+				tectonicPlates.add(new TectonicPlate(3 * sizeX / 4, sizeY / 2, sizeX, sizeY, 1));
+
+				heatGradients = new HeatGradient[2];
+				heatGradients[0] = new HeatGradient(sizeX / 4 + 0.5, sizeY / 2, sizeX, sizeY);
+				heatGradients[1] = new HeatGradient(3 * sizeX / 4 - 0.5, sizeY / 2, sizeX, sizeY);
+			default:
+				System.err.println("Unrecognized map template: " + templateName);
+				System.exit(1);
+
+		}
+	}
+
+	private void setupWorld(int sizeX, int sizeY) {
+		worldSize = new int[2];
+		worldSize[0] = sizeX;
+		worldSize[1] = sizeY;
+
+		tectonicPlates = new ArrayList<TectonicPlate>();
 
 		core = new Core();
 		mantle = new Mantle();
@@ -49,11 +80,12 @@ public class World {
 
 	private void movePlates(){
 		if(platesChanged){
+			System.out.println("moving plates");
 			for(int x = 0; x < tectonicPlates.size(); x++){
 				tectonicPlates.get(x).generateHeatVector(heatGradients);
 			}
 			for(int x = 0; x < tectonicPlates.size(); x++){
-				tectonicPlates.get(x).updateBorders(tectonicPlates);				
+				tectonicPlates.get(x).updateBorders(tectonicPlates);
 			}
 			for(int x = 0; x < tectonicPlates.size(); x++){
 				for(HeatGradient h: heatGradients){
@@ -92,6 +124,7 @@ public class World {
 	}
 
 	public Location[] generateMap(int locationNumber){
+		System.out.println("strt");
 		Location[] locations = new Location[locationNumber]; //update with actual spaces
 		int y = 0;
 		for(int x = 0; x < locations.length; x++){
@@ -106,7 +139,7 @@ public class World {
 					t = tectonicPlates.get(i);
 				}
 			}
-			locations[x] = new Location(new BigDecimal(x - (y - 1) * worldSize[0]), new BigDecimal(x - (y - 1) * worldSize[0] + 1), new BigDecimal(y), new BigDecimal(y+1), 0);
+			locations[x] = new Location(new BigDecimal(x - (y - 1) * worldSize[0]), new BigDecimal(x - (y - 1) * worldSize[0] + 1), new BigDecimal(y), new BigDecimal(y+1), landSubdivisions);
 			locations[x].setColor(t.getColor());
 
 			double heat = 0.; //nearest neighbor interpolation with heat gradients
@@ -146,6 +179,7 @@ public class World {
 			locations[x].setTemperature(temp);
 		}
 		firstTime = false;
+		System.out.println("end");
 		return locations;
 	}
 

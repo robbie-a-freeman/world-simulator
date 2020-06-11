@@ -52,11 +52,12 @@ public class TectonicPlate {
 							if(!isDuplicate){
 								double dir1 = this.getConvectionCurrent().getDirection();
 								double dir2 = t.getConvectionCurrent().getDirection();
-								if(Math.abs(Math.sin(dir1) + Math.sin(dir2)) != Math.abs(Math.sin(dir1)) + Math.abs(Math.sin(dir2)) //TODO fix bugged algo
-								&& Math.abs(Math.cos(dir1) + Math.cos(dir2)) != Math.abs(Math.cos(dir1)) + Math.abs(Math.cos(dir2))) { // if the upward and horizontal components are in opposite directions
+								if (dir1 > dir2 - Math.PI / 4 && dir1 < dir2 + Math.PI / 4) { // if the upward and horizontal components are in opposite directions
 									borders.add(new Border(this.ID, t.getID(), true));
+									System.out.println("convergent border made");
 								} else{
 									borders.add(new Border(this.ID, t.getID(), false));
+									System.out.println("divergent border made");
 								}
 								borders.get(borders.size() - 1).addCoords(i, z);
 								

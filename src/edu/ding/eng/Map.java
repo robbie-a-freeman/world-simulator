@@ -448,7 +448,7 @@ public class Map extends JPanel implements Runnable{
 			double red = 0;
 			double green = 0;
 			double blue = 0;
-			if(height > 0){ //above sea level
+			if (height > 0) { //above sea level
 				red = 102. / 50000. * height;
 				if(red > 102){
 					red = 102;
@@ -459,8 +459,8 @@ public class Map extends JPanel implements Runnable{
 				} else if(green < 41){
 					green = 41;
 				}
-			}else{ //at or below sea level
-				blue = 255 + 255 / 10000 * height; //NOTE: height will always be negative here
+			} else { //at or below sea level
+				blue = 255 + 255 / 10000. * height; //NOTE: height will always be negative here
 			}
 			g.setColor(new Color((int) red, (int) green, (int) blue));
 			g.drawLine(locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue(), locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue());

@@ -14,7 +14,7 @@ public class Location {
 	private BigDecimal[] yRange;
 	private Color color;
 
-	public static final int NUMBER_OF_SUBLOCATIONS_PER_SIDE = 8;
+	public static final int NUMBER_OF_SUBLOCATIONS_PER_SIDE = 2;
 
 	// keys are pairs of x, y coordinates represented as BigDecimals (the top left coordinates)
 	private Hashtable<BigDecimal[], Location> sublocations;
@@ -26,13 +26,13 @@ public class Location {
 		sublocations = new Hashtable<>();
 		createSubLocations(subdivisions - 1);
 	}
-	public Location(BigDecimal minX, BigDecimal maxX, BigDecimal minY, BigDecimal maxY, int subdivisions, Color color){
+	/*public Location(BigDecimal minX, BigDecimal maxX, BigDecimal minY, BigDecimal maxY, int subdivisions, Color color){
 		this.setxRange(new BigDecimal[]{minX, maxX});
 		this.setyRange(new BigDecimal[]{minY, maxY});
 		this.color = color;
 		ownerID = -1;
 		createSubLocations(subdivisions);
-	}
+	} */
 
 	// creates Location objects that are within this Location square. Makes 64 (8x8) subLocations
 	private void createSubLocations(int subdivisions) {
