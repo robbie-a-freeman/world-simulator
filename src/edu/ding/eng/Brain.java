@@ -24,7 +24,7 @@ public class Brain {
 	{
 		Map m = new Map();
 		edu.ding.eng.World w = new edu.ding.eng.World(m, 10, 500, 500);
-		w.importWorld(new edu.ding.map.World(500, 500, "Dual Convergent").getLocations());
+		w.importWorld(new edu.ding.map.World("Dual Convergent").getLocations());
 		w.build();
 		MapWindow j = new MapWindow(m);
 		

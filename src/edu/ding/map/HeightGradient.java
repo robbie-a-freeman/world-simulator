@@ -5,8 +5,8 @@ public class HeightGradient extends Gradient {
 	private double startingHeight, timeElapsed = 1., strengthDecay;
 	private int type; //0 for hotspot, 1 for border activity
 
-	public HeightGradient(double centerX, double centerY, int worldX, int worldY, double startingHeight, int type) {
-		super(centerX, centerY, worldX, worldY);
+	public HeightGradient(double centerX, double centerY, double startingHeight, int type) {
+		super(centerX, centerY);
 		
 		this.startingHeight = startingHeight;
 		this.type = type;

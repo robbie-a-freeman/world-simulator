@@ -2,21 +2,19 @@ package edu.ding.map;
 
 public class Gradient {
 	
-	public double centerX, centerY, worldX, worldY;
+	public double centerX, centerY;
 
-	public Gradient(double centerX, double centerY, int worldX, int worldY){
+	public Gradient(double centerX, double centerY){
 		this.centerX = centerX;
 		this.centerY = centerY;
-		this.worldX = (double) worldX;
-		this.worldY = (double) worldY;
 	}
 	
 	public double calcDistance(double x, double y){
 		double distance;
 		
 		double distanceX;
-		if(Math.abs(centerX - x) > worldX / 2){
-			distanceX = worldX - (centerX - x);
+		if(Math.abs(centerX - x) > World.WORLD_SIZE[0] / 2){
+			distanceX = World.WORLD_SIZE[0] - (centerX - x);
 		}
 		else{
 			distanceX = centerX - x;

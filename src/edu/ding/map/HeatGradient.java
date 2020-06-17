@@ -5,7 +5,7 @@ public class HeatGradient extends Gradient {
 	private int tectonicHost = -1; //if it's -1, that is an error
 
 	public HeatGradient(double centerX, double centerY, int worldX, int worldY) {
-		super(centerX, centerY, worldX, worldY);
+		super(worldX, worldY);
 		
 	}
 	

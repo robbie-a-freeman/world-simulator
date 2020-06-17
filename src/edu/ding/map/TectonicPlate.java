@@ -1,41 +1,74 @@
 package edu.ding.map;
 
 import java.awt.Color;
+import java.lang.Math;
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TectonicPlate {
 
-	private double controlPeak = 100., mass = 10000., centerX, centerY, worldX, worldY;
+	private double controlPeak = 100., mass = 10000., worldX, worldY;
+	private double centerX, centerY;
 	private Color color;
 	private TectonicPlateControlGradient t;
 	private ConvectionCurrent convectionCurrent;
-	private List<HeightGradient> heightGradients = new ArrayList<HeightGradient>();
-	private List<HeightGradient> borderGradients = new ArrayList<HeightGradient>();
+	private List<HeightGradient> heightGradients = new ArrayList<>();
+	private List<HeightGradient> borderGradients = new ArrayList<>();
 	private List<TectonicPlate> tectonicPlates;
-	private List<Border> borders = new ArrayList<Border>();
+	private List<TectonicPlateBorder> borders = new ArrayList<>();
 	private int ID;
 	private boolean bordersChanged = true;
 
+	private ArrayList<TectonicCell> cells;
+
+	@Deprecated
 	public TectonicPlate(double centerX, double centerY, int worldX, int worldY, int ID){
 		this.setID(ID);
 		this.setCenterX(centerX);
 		this.setCenterY(centerY);
 		SecureRandom r = new SecureRandom();
 		setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256))); //give temporary color to see plates
-		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak, worldX, worldY));
+		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak));
 		this.worldX = (double) worldX;
 		this.worldY = (double) worldY;
+	}
+
+	// initialize empty tectonic plate
+	public TectonicPlate(int id) {
+		this.setID(id);
+		SecureRandom r = new SecureRandom();
+		setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256))); //give temporary color to see plates
+
+		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak));
+		worldX = (double) World.WORLD_SIZE[0];
+		worldY = (double) World.WORLD_SIZE[1];
+		cells = new ArrayList<>();
+	}
+
+	public void addCell(TectonicCell c) {
+		cells.add(c);
+	}
+
+	public ArrayList<TectonicCell> getCells() {
+		return cells;
 	}
 
 	public void calcGradient(){
 		//TODO put in ability to adjust gradient
 	}
 
+	public void calculateCenter() {
+		// todo for now it's just the first point
+		setCenterX(cells.get(0).getTopLeftCoordinate()[0].doubleValue());
+		setCenterY(cells.get(0).getTopLeftCoordinate()[1].doubleValue());
+	}
+
 	public void updateBorders(List<TectonicPlate> plates){
 		tectonicPlates = plates;
 
+		//This code is mega jank
 		for(TectonicPlate t: tectonicPlates){ //see if there's a bordering plate
 			if(t.getID() != this.ID){
 				for(double i = 0; i < worldX; i++){
@@ -44,7 +77,7 @@ public class TectonicPlate {
 						double num2 = t.getT().calcNetStrength(i, z);
 						if(num1/num2 > .999 && num1/num2 < 1.001 && num1 + num2 > 4){
 							boolean isDuplicate = false;
-							for(Border b: borders){
+							for(TectonicPlateBorder b: borders){
 								if(b.getSecondPlateID() == t.getID()){
 									isDuplicate = true;
 								}
@@ -53,10 +86,10 @@ public class TectonicPlate {
 								double dir1 = this.getConvectionCurrent().getDirection();
 								double dir2 = t.getConvectionCurrent().getDirection();
 								if (dir1 > dir2 - Math.PI / 4 && dir1 < dir2 + Math.PI / 4) { // if the upward and horizontal components are in opposite directions
-									borders.add(new Border(this.ID, t.getID(), true));
+									borders.add(new TectonicPlateBorder(this.ID, t.getID(), true));
 									System.out.println("convergent border made");
 								} else{
-									borders.add(new Border(this.ID, t.getID(), false));
+									borders.add(new TectonicPlateBorder(this.ID, t.getID(), false));
 									System.out.println("divergent border made");
 								}
 								borders.get(borders.size() - 1).addCoords(i, z);
@@ -67,6 +100,9 @@ public class TectonicPlate {
 				}
 			}
 		}
+
+
+
 	}
 
 	public void move(){ //moves the stuff on the plate, not the plate itself, about 1 year's worth of movement
@@ -76,7 +112,7 @@ public class TectonicPlate {
 			double x = movement * Math.cos(convectionCurrent.getDirection());
 			double y = movement * Math.sin(convectionCurrent.getDirection());
 
-			for(Border b: borders){
+			for(TectonicPlateBorder b: borders){
 				double num1 = this.getT().calcNetStrength(h.getCenterX() + x, h.getCenterY() + y);
 				double num2 = tectonicPlates.get(b.getSecondPlateID()).getT().calcNetStrength(h.getCenterX() + x, h.getCenterY() + y);
 				if(num2 > num1){
@@ -136,7 +172,7 @@ public class TectonicPlate {
 	
 	private void generateBorderLand(){
 		if(bordersChanged){
-			for(Border b: borders){
+			for(TectonicPlateBorder b: borders){
 				if(b.isConverging()){
 					double x = 0;
 					for(Double i: b.getxCoords()){
@@ -150,7 +186,7 @@ public class TectonicPlate {
 					}
 					y /= b.getxCoords().size(); //average x coordinate
 					
-					borderGradients.add(new HeightGradient(x, y, (int) worldX, (int) worldY, 100., 1));
+					borderGradients.add(new HeightGradient(x, y, 100., 1));
 				}
 			}
 			bordersChanged = false;
@@ -233,5 +269,25 @@ public class TectonicPlate {
 
 	public void setConvectionCurrent(ConvectionCurrent convectionCurrent) {
 		this.convectionCurrent = convectionCurrent;
+	}
+
+	public int getRandomAdjacentCellId() {
+		for (TectonicCell c : cells) {
+			if (!c.isEdgeOfParentPlate()) {
+				continue;
+			}
+			int[] neighborIds = c.getNeighborIds();
+			if (neighborIds != null) {
+				for (int i = 0; i < neighborIds.length; i++) {
+					if (!c.isCellPartOfPlate(neighborIds[i])) { // c is not important here
+						c.setEdgeOfParentPlate(true);
+						return neighborIds[i];
+					}
+				}
+				c.setEdgeOfParentPlate(false);
+			}
+		}
+		return -1;
+
 	}
 }

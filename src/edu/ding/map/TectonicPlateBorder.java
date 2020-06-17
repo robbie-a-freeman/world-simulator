@@ -1,16 +1,17 @@
 package edu.ding.map;
 
 import java.awt.List;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class Border {
+public class TectonicPlateBorder {
 	
 	private int firstPlateID, secondPlateID;
 	private ArrayList<Double> xCoords;
 	private ArrayList<Double> yCoords;
 	private boolean isConverging;
 
-	public Border(int firstPlateID, int secondPlateID, boolean isConverging){
+	public TectonicPlateBorder(int firstPlateID, int secondPlateID, boolean isConverging){
 		
 		this.firstPlateID = firstPlateID;
 		this.setSecondPlateID(secondPlateID);
@@ -18,6 +19,13 @@ public class Border {
 		xCoords = new ArrayList<Double>();
 		yCoords = new ArrayList<Double>();
 	}
+
+	/*public TectonicPlateBorder(BigDecimal[] v, TectonicPlateBorder opp, int f, TectonicPlateBorder next) {
+		vertex = v;
+		oppositeBorder = opp;
+		faceId = f;
+		nextBorder = next;
+	} */
 	
 	public void addCoords(double x, double y){
 		xCoords.add(x);
