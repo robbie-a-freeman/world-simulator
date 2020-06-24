@@ -1,5 +1,7 @@
 package edu.ding.map;
 
+import edu.ding.eng.Location;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.*;
@@ -19,8 +21,7 @@ public class TectonicCellNetwork implements Drawable {
 
     private BigDecimal cellW, cellH;
 
-
-    public TectonicCellNetwork(int[] worldSize, BigDecimal cellW, BigDecimal cellH) {
+    public TectonicCellNetwork(BigDecimal cellW, BigDecimal cellH) {
         allVertices = new ConcurrentHashMap<>();
         allHalfEdges = new ConcurrentHashMap<>();
         allCells = new ConcurrentHashMap<>();
@@ -32,7 +33,7 @@ public class TectonicCellNetwork implements Drawable {
         BigDecimal currX = new BigDecimal(0);
         BigDecimal currY = new BigDecimal(0);
         int i = 0;
-        while (currY.doubleValue() < worldSize[1] + 0.0001) { // double precision
+        while (currY.doubleValue() < World.WORLD_SIZE[1] + 0.0001) { // double precision
             System.out.println(currY.doubleValue());
             Vertex v;
             if (currX.equals(new BigDecimal(500))) {
@@ -48,7 +49,7 @@ public class TectonicCellNetwork implements Drawable {
             allVertices.put(currX, subMap);
             i++;
             currX = currX.add(cellW);
-            if (currX.doubleValue() >= worldSize[0] + 0.0001) {
+            if (currX.doubleValue() >= World.WORLD_SIZE[0] + 0.0001) {
                 currX = new BigDecimal(0);
                 currY = currY.add(cellH);
             }
@@ -64,9 +65,9 @@ public class TectonicCellNetwork implements Drawable {
             allVertices.get(cellX).put(new BigDecimal(0), toVirtual);
 
             // bottom
-            toVirtual = allVertices.get(cellX).get(new BigDecimal(worldSize[1]));
-            toVirtual = new Vertex(toVirtual.getId(), new BigDecimal[]{toVirtual.getX(), toVirtual.getY()}, allVertices.get(linkedCellX).get(new BigDecimal(worldSize[1])));
-            allVertices.get(cellX).put(new BigDecimal(worldSize[1]), toVirtual);
+            toVirtual = allVertices.get(cellX).get(new BigDecimal(World.WORLD_SIZE[1]));
+            toVirtual = new Vertex(toVirtual.getId(), new BigDecimal[]{toVirtual.getX(), toVirtual.getY()}, allVertices.get(linkedCellX).get(new BigDecimal(World.WORLD_SIZE[1])));
+            allVertices.get(cellX).put(new BigDecimal(World.WORLD_SIZE[1]), toVirtual);
         }
 
 
@@ -78,16 +79,16 @@ public class TectonicCellNetwork implements Drawable {
         currX = new BigDecimal(0);
         currY = new BigDecimal(0);
         i = 0; // cell number (face)
-        while (currY.doubleValue() < worldSize[1] - 0.0001) { // double precision
+        while (currY.doubleValue() < World.WORLD_SIZE[1] - 0.0001) { // double precision
 
             BigDecimal rightOffset = currX.add(cellW);
             BigDecimal bottomOffset = currY.add(cellH);
-            if (bottomOffset.doubleValue() > worldSize[1]) {
+            if (bottomOffset.doubleValue() > World.WORLD_SIZE[1]) {
                 bottomOffset = new BigDecimal(500);
                 rightOffset = rightOffset.add(new BigDecimal(250)).add(cellW);
                 if (rightOffset.compareTo(new BigDecimal(500)) > 0)
                     rightOffset = rightOffset.subtract(new BigDecimal(500));
-            } else if (rightOffset.doubleValue() > worldSize[0])
+            } else if (rightOffset.doubleValue() > World.WORLD_SIZE[0])
                 rightOffset = new BigDecimal(0);
 
             Vertex tl = allVertices.get(currX).get(currY);
@@ -138,7 +139,7 @@ public class TectonicCellNetwork implements Drawable {
 
             currX = currX.add(cellW);
             i++;
-            if (currX.doubleValue() >= worldSize[0] + 0.0001) {
+            if (currX.doubleValue() >= World.WORLD_SIZE[0] + 0.0001) {
                 currX = new BigDecimal(0);
                 currY = currY.add(cellH);
             }
@@ -253,7 +254,7 @@ public class TectonicCellNetwork implements Drawable {
 
     public static void main(String[] args) {
         int[] worldSize = new int[] {500, 500};
-        TectonicCellNetwork n = new TectonicCellNetwork(worldSize, new BigDecimal(2), new BigDecimal(2));
+        TectonicCellNetwork n = new TectonicCellNetwork(new BigDecimal(2), new BigDecimal(2));
         n.distributeCells(100);
         //System.out.println(n.getAllVertices().size());
         //System.out.println(n.getAllHalfEdges().size());
@@ -272,6 +273,29 @@ public class TectonicCellNetwork implements Drawable {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setSize(700, 700);
         f.setVisible(true);
+
+    }
+
+    // Assigns TectonicPlate pointers to their proper Location objects
+    public void assignParentPlates(Location[] locs) {
+        for (Location l : locs) {
+            l.setParentPlate(findPlateAt(l.getX(), l.getY()));
+        }
+    }
+
+    // todo super naive but whatever
+    private TectonicPlate findPlateAt(BigDecimal x, BigDecimal y) {
+        ConcurrentHashMap<BigDecimal, Vertex> col = allVertices.get(x);//.get(y);
+        if (col != null) {
+            Vertex vert1 = col.get(y);
+            if (vert1 != null) {
+                Vertex vert2 = allVertices.get(x).get(y.add(cellH));
+                return plates.get(allCells.get(allHalfEdges.get(vert1.getId()).get(vert2.getId()).getFaceId()).getParentId());
+            }
+        }
+
+        // if the easy way doesn't work, try it the hard way
+        return null;
 
     }
 }

@@ -1,5 +1,7 @@
 package edu.ding.eng;
 
+import edu.ding.map.TectonicPlate;
+
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.Hashtable;
@@ -13,6 +15,7 @@ public class Location {
 	private BigDecimal[] xRange;
 	private BigDecimal[] yRange;
 	private Color color;
+	private TectonicPlate parentPlate;
 
 	public static final int NUMBER_OF_SUBLOCATIONS_PER_SIDE = 2;
 
@@ -122,4 +125,11 @@ public class Location {
 		this.temperature = temperature;
 	}
 
+	public TectonicPlate getParentPlate() {
+		return parentPlate;
+	}
+
+	public void setParentPlate(TectonicPlate parentPlate) {
+		this.parentPlate = parentPlate;
+	}
 }

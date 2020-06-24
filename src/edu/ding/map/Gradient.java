@@ -2,11 +2,16 @@ package edu.ding.map;
 
 public class Gradient {
 	
-	public double centerX, centerY;
+	public double centerX, centerY; // todo make private
+	private HasStrengthGradient obj;
 
 	public Gradient(double centerX, double centerY){
 		this.centerX = centerX;
 		this.centerY = centerY;
+	}
+
+	public Gradient (HasStrengthGradient obj) {
+		this.obj = obj;
 	}
 	
 	public double calcDistance(double x, double y){
@@ -24,6 +29,9 @@ public class Gradient {
 	}
 
 	public double getCenterX() {
+		if (obj != null)
+			return obj.getCenter()[0];
+
 		return centerX;
 	}
 
@@ -32,6 +40,9 @@ public class Gradient {
 	}
 
 	public double getCenterY() {
+		if (obj != null)
+			return obj.getCenter()[1];
+
 		return centerY;
 	}
 

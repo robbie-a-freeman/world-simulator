@@ -319,8 +319,7 @@ public class Map extends JPanel implements Runnable{
 		this.tectonicPlates = tectonicPlates;
 	}
 
-	public void paintComponent(Graphics g)
-	{
+	public void paintComponent(Graphics g) {
 		switch(mapMode){
 		case 0:
 			updateNormalPoints(g);
@@ -346,8 +345,7 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
-	private void updateNormalPoints(Graphics g)
-	{
+	private void updateNormalPoints(Graphics g)	{
 
 		for(int y = 0; y < mapY; y++){ //retrieves land colors and draws them on map
 			for(int x = 0; x < mapX; x++){
@@ -363,8 +361,7 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
-	private void updateSurfaceTempGradients(Graphics g) 
-	{
+	private void updateSurfaceTempGradients(Graphics g) {
 		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
 			double temp = locations[i].getTemperature();
 			double red = temp * 255/600 - 100;
@@ -381,8 +378,7 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
-	private void updateCountryPoints(Graphics g)
-	{
+	private void updateCountryPoints(Graphics g) {
 		for(int i = 0; i < countryLocations.length; i++){ //retrieves country colors and draws them on map
 			if(countryLocations[i] != null){
 				g.setColor(countryLocations[i][0].getColor());
@@ -395,10 +391,9 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
-	private void updateTectonicPlates(Graphics g)
-	{
-		for(int i = 0; i < locations.length; i++){ //retrieves plate colors and draws them on map
-			g.setColor(locations[i].getColor()); //TODO Clean up and fix
+	private void updateTectonicPlates(Graphics g) {
+		for(int i = 0; i < locations.length; i++){ // retrieves plate colors and draws them on map
+			g.setColor(locations[i].getParentPlate().getColor());
 			g.drawLine(locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue(), locations[i].getX().add(new BigDecimal(1)).intValue(), locations[i].getY().add(new BigDecimal(1)).intValue());
 		}
 		for(TectonicPlate t: tectonicPlates){ //Draw arrows
@@ -428,8 +423,7 @@ public class Map extends JPanel implements Runnable{
 
 	}
 
-	private void updateHeatGradients(Graphics g)
-	{
+	private void updateHeatGradients(Graphics g) {
 		for(int i = 0; i < locations.length; i++){ //retrieves plate temperatures and draws them on map
 			double temp = locations[i].getMantleTemperature(); //should be between about 200 and 400, with most around 330
 			
@@ -441,8 +435,7 @@ public class Map extends JPanel implements Runnable{
 		}
 	}
 
-	private void updateHeightGradients(Graphics g)
-	{
+	private void updateHeightGradients(Graphics g) {
 		for(int i = 0; i < locations.length; i++){ //retrieves heights and projects them onto the map TODO FINISH
 			double height = locations[i].getElevation();
 			double red = 0;
@@ -468,14 +461,12 @@ public class Map extends JPanel implements Runnable{
 	}
 
 	@Override
-	public void run()
-	{
+	public void run() {
 		repaint();
 		revalidate();
 	}
 
-	public void updateLocations(Location[] locs, Location[][] countryLocs) 
-	{
+	public void updateLocations(Location[] locs, Location[][] countryLocs) {
 		locations = locs;
 		countryLocations = countryLocs;
 	}

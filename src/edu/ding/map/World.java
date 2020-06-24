@@ -35,13 +35,14 @@ public class World {
 		setupWorld();
 		SecureRandom r = new SecureRandom(); //generate tectonic plates
 		for(int x = 0; x < 100; x++){
-			tectonicPlates.add(new TectonicPlate(r.nextInt(WORLD_SIZE[0]), r.nextInt(WORLD_SIZE[1]), WORLD_SIZE[0], WORLD_SIZE[1], x));
+			tectonicPlates.add(new TectonicPlate(r.nextInt(x)));
 		}
 		int x = r.nextInt(6) + 25; //generate mantle heat gradients
 		heatGradients = new HeatGradient[x];
 		for(int i = 0; i < x; i++){
-			heatGradients[i] = new HeatGradient(r.nextInt(WORLD_SIZE[0]), r.nextInt(WORLD_SIZE[1]), WORLD_SIZE[0], WORLD_SIZE[1]);
+			heatGradients[i] = new HeatGradient(r.nextInt(WORLD_SIZE[0]), r.nextInt(WORLD_SIZE[1]));
 		}
+		platesChanged = true;
 	}
 
 	public World(String templateName) {
@@ -50,23 +51,23 @@ public class World {
 			case "Dual Convergent":
 				setupWorld();
 
-				createTectonicPlates(10, 100, 100);
-
-				//tectonicPlates.add(new TectonicPlate(WORLD_SIZE[0] / 4, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1], 0));
-				//tectonicPlates.add(new TectonicPlate(3 * WORLD_SIZE[0] / 4, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1], 1));
+				createTectonicPlates(2, 100, 100);
 
 				heatGradients = new HeatGradient[2];
-				heatGradients[0] = new HeatGradient(WORLD_SIZE[0] / 4 - 0.5, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1]);
-				heatGradients[1] = new HeatGradient(3 * WORLD_SIZE[0] / 4 + 0.5, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1]);
+				heatGradients[0] = new HeatGradient(WORLD_SIZE[0] / 4 - 0.5, WORLD_SIZE[1] / 2);
+				heatGradients[1] = new HeatGradient(3 * WORLD_SIZE[0] / 4 + 0.5, WORLD_SIZE[1] / 2);
+				platesChanged = true;
 				break;
 			case "Dual Divergent":
 				setupWorld();
-				tectonicPlates.add(new TectonicPlate(WORLD_SIZE[0] / 4, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1], 0));
-				tectonicPlates.add(new TectonicPlate(3 * WORLD_SIZE[0] / 4, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1], 1));
+
+				createTectonicPlates(2, 100, 100);
 
 				heatGradients = new HeatGradient[2];
-				heatGradients[0] = new HeatGradient(WORLD_SIZE[0] / 4 + 0.5, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1]);
-				heatGradients[1] = new HeatGradient(3 * WORLD_SIZE[0] / 4 - 0.5, WORLD_SIZE[1] / 2, WORLD_SIZE[0], WORLD_SIZE[1]);
+				heatGradients[0] = new HeatGradient(WORLD_SIZE[0] / 4 + 0.5, WORLD_SIZE[1] / 2);
+				heatGradients[1] = new HeatGradient(3 * WORLD_SIZE[0] / 4 - 0.5, WORLD_SIZE[1] / 2);
+				platesChanged = true;
+				break;
 			default:
 				System.err.println("Unrecognized map template: " + templateName);
 				System.exit(1);
@@ -83,10 +84,12 @@ public class World {
 		// divide the world grid into n equal rectangular pieces
 		BigDecimal cellWidth = new BigDecimal(WORLD_SIZE[0] / (double) resX);
 		BigDecimal cellHeight = new BigDecimal(WORLD_SIZE[1] / (double) resY);
-		TectonicCellNetwork network = new TectonicCellNetwork(WORLD_SIZE, cellWidth, cellHeight);
+		TectonicCellNetwork network = new TectonicCellNetwork(cellWidth, cellHeight);
 		network.distributeCells(n); // distribute cells to n plates
 		network.getPlates().forEach(p -> p.calculateCenter());
+		network.assignParentPlates(getLocations());
 		tectonicPlates = network.getPlates();
+		System.out.println("plates list: " + tectonicPlates);
 
 		// randomly jostle the points around to give a bit of randomness to it
 		/* double randomnessFactor = 1; todo

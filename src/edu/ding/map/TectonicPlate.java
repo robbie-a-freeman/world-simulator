@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TectonicPlate {
+public class TectonicPlate implements HasStrengthGradient{
 
 	private double controlPeak = 100., mass = 10000., worldX, worldY;
 	private double centerX, centerY;
@@ -30,7 +30,7 @@ public class TectonicPlate {
 		this.setCenterY(centerY);
 		SecureRandom r = new SecureRandom();
 		setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256))); //give temporary color to see plates
-		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak));
+		setT(new TectonicPlateControlGradient(this, controlPeak));
 		this.worldX = (double) worldX;
 		this.worldY = (double) worldY;
 	}
@@ -41,10 +41,17 @@ public class TectonicPlate {
 		SecureRandom r = new SecureRandom();
 		setColor(new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256))); //give temporary color to see plates
 
-		setT(new TectonicPlateControlGradient(centerX, centerY, controlPeak));
+
+		setT(new TectonicPlateControlGradient(this, controlPeak));
 		worldX = (double) World.WORLD_SIZE[0];
 		worldY = (double) World.WORLD_SIZE[1];
 		cells = new ArrayList<>();
+	}
+
+	@Override
+	public double[] getCenter() {
+		calculateCenter();
+		return new double[] {centerX, centerY};
 	}
 
 	public void addCell(TectonicCell c) {
