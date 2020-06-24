@@ -29,6 +29,7 @@ public class World {
 	private HeatGradient[] heatGradients;
 	private boolean platesChanged = true, firstTime = true;
 
+    private Location[] allLocations;
 	private int landSubdivisions = 0;
 
 	public World(){
@@ -87,7 +88,9 @@ public class World {
 		TectonicCellNetwork network = new TectonicCellNetwork(cellWidth, cellHeight);
 		network.distributeCells(n); // distribute cells to n plates
 		network.getPlates().forEach(p -> p.calculateCenter());
-		network.assignParentPlates(getLocations());
+
+		allLocations = createLocationArray();
+		network.assignParentPlates(allLocations);
 		tectonicPlates = network.getPlates();
 		System.out.println("plates list: " + tectonicPlates);
 
@@ -150,33 +153,24 @@ public class World {
 		return false;
 	}
 
-	public Location[] generateMap(int locationNumber){
+	public Location[] generateMap(Location[] locations){
 		System.out.println("strt");
-		Location[] locations = new Location[locationNumber]; //update with actual spaces
 		int y = 0;
 		for(int x = 0; x < locations.length; x++){
-			if(x % WORLD_SIZE[0] == 0){
-				y++;
-			}
-			TectonicPlate t = null;
-			double maxControl = 0.; //nearest neighbor interpolation with tectonic plate gradients
-			for(int i = 0; i < tectonicPlates.size(); i++){
-				if(tectonicPlates.get(i).getT().calcNetStrength(x - (y - 1) * WORLD_SIZE[0], y) > maxControl){
-					maxControl = tectonicPlates.get(i).getT().calcNetStrength(x - (y - 1) * WORLD_SIZE[0], y);
-					t = tectonicPlates.get(i);
-				}
-			}
-			locations[x] = new Location(new BigDecimal(x - (y - 1) * WORLD_SIZE[0]), new BigDecimal(x - (y - 1) * WORLD_SIZE[0] + 1), new BigDecimal(y), new BigDecimal(y+1), landSubdivisions);
-			locations[x].setColor(t.getColor());
 
 			double heat = 0.; //nearest neighbor interpolation with heat gradients
 			for(int i = 0; i < heatGradients.length; i++){
 				heat += heatGradients[i].calcNetStrength(x - (y - 1) * WORLD_SIZE[0], y);
 			}
+
+			TectonicPlate t = locations[x].getParentPlate();
+
 			/*if(heat >= 150. && firstTime){
 				t.getHeightGradients().add(new HeightGradient(x - (y - 1) * WORLD_SIZE[0], y, WORLD_SIZE[0], WORLD_SIZE[1], 1000));
 			}*/
 			double height = -2000.; //nearest neighbor interpolation with heat gradients
+            System.out.println("heights: " + t.getHeightGradients());
+            System.out.println("borders: " + t.getBorderGradients());
 			for(int i = 0; i < t.getHeightGradients().size(); i++){
 				height += t.getHeightGradients().get(i).calcNetStrength(x - (y - 1) * WORLD_SIZE[0], y);
 			}
@@ -210,9 +204,23 @@ public class World {
 		return locations;
 	}
 
+	private Location[] createLocationArray() {
+	    Location[] locList = new Location[WORLD_SIZE[0] * WORLD_SIZE[1]];
+
+        int y = 0;
+        for(int x = 0; x < locList.length; x++) {
+            if (x % WORLD_SIZE[0] == 0) {
+                y++;
+            }
+            locList[x] = new Location(new BigDecimal(x - (y - 1) * WORLD_SIZE[0]), new BigDecimal(x - (y - 1) * WORLD_SIZE[0] + 1), new BigDecimal(y), new BigDecimal(y + 1), landSubdivisions);
+        }
+
+        return locList;
+    }
+
 	public void printFrame(){
 		Map m = new Map();
-		m.updateLocations(generateMap(WORLD_SIZE[0] * WORLD_SIZE[1]), null);
+		m.updateLocations(generateMap(allLocations), null);
 		m.updateTectonicPlates(tectonicPlates);
 		MapWindow j = new MapWindow(m);
 	}
@@ -229,7 +237,7 @@ public class World {
 	
 	public Location[] getLocations(){
 		run();
-		return generateMap(WORLD_SIZE[0] * WORLD_SIZE[1]);
+		return generateMap(allLocations);
 	}
 
 }
