@@ -18,7 +18,7 @@ import edu.ding.eng.MapWindow;
 public class World {
 	
 	// world constants
-	public static final int[] WORLD_SIZE = new int[]{500, 500};
+	public static final int[] WORLD_SIZE = new int[]{50, 50};
 
 	private Atmosphere atmosphere;
 	private List<TectonicPlate> tectonicPlates;
@@ -52,7 +52,7 @@ public class World {
 			case "Dual Convergent":
 				setupWorld();
 
-				createTectonicPlates(2, 100, 100);
+				createTectonicPlates(2, 50, 50);
 
 				heatGradients = new HeatGradient[2];
 				heatGradients[0] = new HeatGradient(WORLD_SIZE[0] / 4 - 0.5, WORLD_SIZE[1] / 2);
@@ -169,8 +169,8 @@ public class World {
 				t.getHeightGradients().add(new HeightGradient(x - (y - 1) * WORLD_SIZE[0], y, WORLD_SIZE[0], WORLD_SIZE[1], 1000));
 			}*/
 			double height = -2000.; //nearest neighbor interpolation with heat gradients
-            System.out.println("heights: " + t.getHeightGradients());
-            System.out.println("borders: " + t.getBorderGradients());
+            //System.out.println("heights: " + t.getHeightGradients());
+            //System.out.println("borders: " + t.getBorderGradients());
 			for(int i = 0; i < t.getHeightGradients().size(); i++){
 				height += t.getHeightGradients().get(i).calcNetStrength(x - (y - 1) * WORLD_SIZE[0], y);
 			}
