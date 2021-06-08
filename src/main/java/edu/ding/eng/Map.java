@@ -20,8 +20,8 @@ public class Map extends JPanel implements Runnable{
 	 * 
 	 */
 	private static final long serialVersionUID = 3967835280265684766L;
-	private int mapX = 500;
-	private int mapY = 500;
+	private int mapX = 50;
+	private int mapY = 50;
 	private Location locations[] = new Location[mapX * mapY];
 	private Location countryLocations[][] = null;
 	private int[] landTilesX = new int[mapX * mapY];
@@ -32,9 +32,9 @@ public class Map extends JPanel implements Runnable{
 	private Graphics g;
 
 	private int minXView = 0;
-	private int maxXView = 500;
+	private int maxXView = 50;
 	private int minYView = 0;
-	private int maxYView = 500;
+	private int maxYView = 50;
 
 
 	public Map()

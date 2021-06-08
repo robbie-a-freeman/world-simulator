@@ -278,25 +278,48 @@ public class TectonicCellNetwork implements Drawable {
 
     // Assigns TectonicPlate pointers to their proper Location objects
     public void assignParentPlates(Location[] locs) {
+        int n = 0;
         for (Location l : locs) {
-            l.setParentPlate(findPlateAt(l.getX(), l.getY()));
+            TectonicPlate t = findPlateAt(l.getX(), l.getY());
+            System.out.println("loc: " + n);
+            l.setParentPlate(t);
+            n++;
         }
     }
 
     // todo super naive but whatever
     private TectonicPlate findPlateAt(BigDecimal x, BigDecimal y) {
-        ConcurrentHashMap<BigDecimal, Vertex> col = allVertices.get(x);//.get(y);
-        if (col != null) {
-            Vertex vert1 = col.get(y);
-            if (vert1 != null) {
-                Vertex vert2 = allVertices.get(x).get(y.add(cellH));
-                return plates.get(allCells.get(allHalfEdges.get(vert1.getId()).get(vert2.getId()).getFaceId()).getParentId());
+
+        // find the closest cell to the point, return its plate
+        TectonicCell closestCell = null;
+        BigDecimal closestDistanceSq = BigDecimal.valueOf(Double.MAX_VALUE);
+
+        /*System.out.println(closestCell.getTopLeftCoordinate()[0]);
+        System.out.println(closestCell.getTopLeftCoordinate()[1]);
+        System.out.println(closestCell.getCenterCoordinate()[0]);
+        System.out.println(closestCell.getCenterCoordinate()[1]);*/
+        BigDecimal reqDistSq = BigDecimal.ZERO.subtract(cellW.divide(new BigDecimal(2))).pow(2).add(BigDecimal.ZERO.subtract(cellH.divide(new BigDecimal(2)))).pow(2);
+
+        for (TectonicCell c : allCells.values()) {
+            BigDecimal[] center = c.getCenterCoordinate();
+            BigDecimal dSq = x.subtract(center[0]).pow(2).add(y.subtract(center[1]).pow(2));
+            if (dSq.compareTo(closestDistanceSq) < 0) {
+                closestDistanceSq = dSq;
+                closestCell = c;
+                if (closestDistanceSq.compareTo(reqDistSq) <= 0)
+                    return plates.get(closestCell.getParentId());
             }
         }
+        return plates.get(closestCell.getParentId());
 
-        // if the easy way doesn't work, try it the hard way
-        return null;
+    }
 
+    public BigDecimal getCellW() {
+        return cellW;
+    }
+
+    public BigDecimal getCellH() {
+        return cellH;
     }
 }
 

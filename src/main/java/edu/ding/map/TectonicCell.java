@@ -24,13 +24,20 @@ public class TectonicCell {
         return network.getCell(cellId).getParentId() != -1; // && network.getCell(cellId).getParentId() != plateId
     }
 
-    /*public BigDecimal[] calculateCenter() {
-        HalfEdge curr = halfEdge;
-
-    } */
-
     public BigDecimal[] getTopLeftCoordinate() {
-        return halfEdge.getVertex().getXY();
+        return new BigDecimal[]{halfEdge.getVertex().getRealX(), halfEdge.getVertex().getRealY()};
+    }
+
+    // assumes rectangular cell. averages top left and bottom right coordinates
+    public BigDecimal[] getCenterCoordinate() {
+        /*
+        HalfEdge curr = halfEdge;
+        BigDecimal[] tl = halfEdge.getVertex().getXY();
+        BigDecimal[] br = halfEdge.getNextEdge().getNextEdge().getVertex().getXY();
+
+        return new BigDecimal[]{tl[0].add(br[0]).divide(new BigDecimal(2)), tl[1].add(br[1]).divide(new BigDecimal(2))};*/
+
+        return new BigDecimal[]{getTopLeftCoordinate()[0].add(network.getCellW()), getTopLeftCoordinate()[1].add(network.getCellH())};
     }
 
     public HalfEdge getHalfEdge() {
