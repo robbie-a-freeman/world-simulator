@@ -41,6 +41,9 @@
 Country Simulator.iml
 # *.ipr
 
+# Maven
+/target
+
 # CMake
 cmake-build-*/
 
