@@ -11,31 +11,74 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <spring.boot.mainclass>edu.ding.map.PrimaryController</spring.boot.mainclass>
     </properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.0</version>
+    </parent>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+    <profiles>
+        <profile>
+            <id>profile1</id>
+            <properties>
+                <spring.boot.mainclass>edu.ding.map.PrimaryController</spring.boot.mainclass>
+            </properties>
+        </profile>
+        <profile>
+            <id>profile2</id>
+            <properties>
+                <spring.boot.mainclass>edu.ding.eng.Brain</spring.boot.mainclass>
+            </properties>
+        </profile>
+    </profiles>
     <build>
         <plugins>
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>${spring.boot.mainclass}</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>java</goal>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-classpath</argument>
-                        <!-- automatically creates the classpath using all project dependencies,
-                             also adding the project build directory -->
-                        <classpath/>
-                        <argument>edu.ding.map.TectonicCellNetwork</argument>
-                    </arguments>
-                </configuration>
             </plugin>
+
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>exec-maven-plugin</artifactId>-->
+                <!--<version>3.0.0</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>java</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<executable>java</executable>-->
+                    <!--<arguments>-->
+                        <!--<argument>-classpath</argument>-->
+                        <!--&lt;!&ndash; automatically creates the classpath using all project dependencies,-->
+                             <!--also adding the project build directory &ndash;&gt;-->
+                        <!--<classpath/>-->
+                        <!--<argument>edu.ding.map.TectonicCellNetwork</argument>-->
+                    <!--</arguments>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
         </plugins>
     </build>
     

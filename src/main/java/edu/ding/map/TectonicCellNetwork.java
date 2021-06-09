@@ -2,15 +2,12 @@ package edu.ding.map;
 
 import edu.ding.eng.Location;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class TectonicCellNetwork implements Drawable {
 
@@ -252,29 +249,7 @@ public class TectonicCellNetwork implements Drawable {
         }
     }
 
-    public static void main(String[] args) {
-        int[] worldSize = new int[] {500, 500};
-        TectonicCellNetwork n = new TectonicCellNetwork(new BigDecimal(2), new BigDecimal(2));
-        n.distributeCells(100);
-        //System.out.println(n.getAllVertices().size());
-        //System.out.println(n.getAllHalfEdges().size());
-        //n.getAllHalfEdges().forEach((i, x) -> System.out.println(x.toString()));
-        /*
-        System.out.println(n.getNominalHalfEdges().get(0).getVertex());
-        System.out.println(n.getNominalHalfEdges().get(0).getFaceId());
-        System.out.println(n.getNominalHalfEdges().get(0).getNextEdge());
-        System.out.println(n.getNominalHalfEdges().get(0).getId());
-        System.out.println(n.getNominalHalfEdges().get(0).getOppositeEdge()); */
 
-        // draw out the network
-        JFrame f = new JFrame();
-        TestPanel p = new TestPanel(n);
-        f.add(p);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setSize(700, 700);
-        f.setVisible(true);
-
-    }
 
     // Assigns TectonicPlate pointers to their proper Location objects
     public void assignParentPlates(Location[] locs) {
