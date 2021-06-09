@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <spring.boot.mainclass>edu.ding.map.TectonicCellNetwork</spring.boot.mainclass>
+        <spring.boot.mainclass>edu.ding.map.PrimaryController</spring.boot.mainclass>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -28,7 +28,7 @@
         <profile>
             <id>profile1</id>
             <properties>
-                <spring.boot.mainclass>edu.ding.map.TectonicCellNetwork</spring.boot.mainclass>
+                <spring.boot.mainclass>edu.ding.map.PrimaryController</spring.boot.mainclass>
             </properties>
         </profile>
         <profile>
